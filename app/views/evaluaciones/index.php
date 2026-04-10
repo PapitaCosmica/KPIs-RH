@@ -98,9 +98,23 @@
     </div>
 </div>
 
-    <div class="view-actions" style="margin-top: 2rem; text-align: right;">
-        <a href="<?php echo URL_ROOT; ?>/export/download" class="btn-neo">
+    <div class="view-actions" style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+        <button id="btnShareSurvey" class="btn-neo" style="background: var(--color-ice-blue); color: white;">
+            🔗 Compartir Encuesta
+        </button>
+        <a href="<?php echo URL_ROOT; ?>?url=export/download" class="btn-neo">
             📥 Exportar Reporte Final
         </a>
     </div>
 </div>
+
+<script>
+document.getElementById('btnShareSurvey').addEventListener('click', () => {
+    const surveyUrl = window.APP_URL + '?url=survey';
+    navigator.clipboard.writeText(surveyUrl).then(() => {
+        alert('Enlace de la encuesta copiado al portapapeles: ' + surveyUrl);
+    }).catch(err => {
+        console.error('Error al copiar el enlace:', err);
+    });
+});
+</script>

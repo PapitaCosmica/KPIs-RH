@@ -14,11 +14,15 @@
 </head>
 <body class="mac-os-theme">
     <div class="mac-window-wrapper">
-        <div class="app-container glass-container">
-            <?php include_once TEMPLATES_PATH . '/sidebar.php'; ?>
+        <div class="app-container <?php echo isset($isIsolated) ? 'isolated-mode' : 'glass-container'; ?>">
+            <?php if (!isset($isIsolated)): ?>
+                <?php include_once TEMPLATES_PATH . '/sidebar.php'; ?>
+            <?php endif; ?>
         
         <main class="main-content">
-            <?php include_once TEMPLATES_PATH . '/header.php'; ?>
+            <?php if (!isset($isIsolated)): ?>
+                <?php include_once TEMPLATES_PATH . '/header.php'; ?>
+            <?php endif; ?>
             
             <section class="page-content">
                 <!-- Content injected here -->

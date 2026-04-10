@@ -1,8 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine on
-    # Redirect empty requests or requests for root to /public
-    RewriteRule ^$ public/ [L]
-    # Keep anything else going through public if it's not a file/dir
-    RewriteCond %{REQUEST_URI} !^/public/
+    # Check if we are already in public
+    RewriteCond %{REQUEST_URI} !/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
