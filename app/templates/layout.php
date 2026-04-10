@@ -38,6 +38,26 @@
     </div>
     <script>
         window.APP_URL = "<?php echo URL_ROOT; ?>";
+        
+        // Mobile Sidebar Toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+        
+        // Close sidebar when clicking outside (mobile)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !sidebarToggle.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
     </script>
     <script src="<?php echo URL_ROOT; ?>/assets/js/search.js"></script>
     <script src="<?php echo URL_ROOT; ?>/assets/js/charts.js"></script>

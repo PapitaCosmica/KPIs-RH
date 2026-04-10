@@ -1,4 +1,7 @@
 <header class="top-header">
+    <div class="menu-toggle" id="sidebarToggle">
+        <span>☰</span>
+    </div>
     <div class="header-info">
         <span class="breadcrumb">Dashboard > Inicio</span>
     </div>
