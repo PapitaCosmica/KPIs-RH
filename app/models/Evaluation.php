@@ -108,6 +108,20 @@ class Evaluation {
         $sql = "SELECT * FROM onboarding_evaluations WHERE 1=1";
         $binds = [];
 
+        // Support for Global Spotlight Search
+        if (!empty($params['global'])) {
+            $sql .= " AND (
+                nombre LIKE :global OR 
+                num_empleado LIKE :global OR 
+                puesto LIKE :global OR 
+                coordinacion LIKE :global OR
+                f_logros LIKE :global OR
+                f_mejoras_proceso LIKE :global OR
+                f_comentarios_libres LIKE :global
+            )";
+            $binds['global'] = "%" . $params['global'] . "%";
+        }
+
         if (!empty($params['num_empleado'])) {
             $sql .= " AND num_empleado = :num_empleado";
             $binds['num_empleado'] = $params['num_empleado'];

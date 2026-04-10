@@ -34,6 +34,10 @@ switch ($url) {
         $exportController->download();
         exit;
         
+    case 'apiSearch':
+        $controller->apiSearch($_GET);
+        exit;
+        
     case 'home':
     default:
         $url = 'home';

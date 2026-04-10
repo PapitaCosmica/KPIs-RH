@@ -1,17 +1,3 @@
-    <!-- Spotlight Search & Filters -->
-    <div class="search-controls">
-        <div class="spotlight-search">
-            <input type="text" id="spotlightInput" placeholder="Buscar por número de empleado o nombre..." autofocus>
-        </div>
-        <div class="secondary-filters">
-            <select id="coordinacionSelect" class="btn-neo">
-                <option value="">Todas las Áreas</option>
-                <option value="Operaciones">Operaciones</option>
-                <option value="Sistemas">Sistemas</option>
-                <option value="Recursos Humanos">Recursos Humanos</option>
-            </select>
-        </div>
-    </div>
 
     <!-- KPI Neomorphic Grid -->
     <div class="kpi-grid">
