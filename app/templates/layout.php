@@ -36,5 +36,9 @@
         </main>
         </div>
     </div>
+    <script>
+        window.APP_URL = "<?php echo URL_ROOT; ?>";
+    </script>
+    <script src="<?php echo URL_ROOT; ?>/assets/js/search.js"></script>
 </body>
 </html>
