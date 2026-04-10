@@ -7,13 +7,15 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Main CSS (Glassmorphism) -->
+    <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/variables.css">
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/style.css">
     <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="glass-layout">
-    <div class="app-container">
-        <?php include_once TEMPLATES_PATH . '/sidebar.php'; ?>
+<body class="mac-os-theme">
+    <div class="mac-window-wrapper">
+        <div class="app-container glass-container">
+            <?php include_once TEMPLATES_PATH . '/sidebar.php'; ?>
         
         <main class="main-content">
             <?php include_once TEMPLATES_PATH . '/header.php'; ?>
@@ -32,6 +34,7 @@
             
             <?php include_once TEMPLATES_PATH . '/footer.php'; ?>
         </main>
+        </div>
     </div>
 </body>
 </html>

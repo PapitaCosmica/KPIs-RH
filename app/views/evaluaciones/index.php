@@ -1,44 +1,45 @@
-<div class="evaluaciones-container">
-    <div class="view-header">
-        <div class="title-group">
-            <h1>Evaluaciones de Onboarding</h1>
-            <p>Visualización y reporte de resultados por dimensión.</p>
+<div class="evaluaciones-view">
+    <!-- Spotlight Search -->
+    <div class="spotlight-search">
+        <input type="text" id="spotlightInput" placeholder="Buscar por número de empleado o nombre..." autofocus>
+    </div>
+
+    <!-- KPI Neomorphic Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="icon">📈</span>
+            <span class="value">0%</span>
+            <span class="label">IGEO Global</span>
         </div>
-        <div class="action-group">
-            <a href="<?php echo URL_ROOT; ?>/export/download" class="btn btn-primary glass-btn">
-                <i class="icon-excel"></i> Exportar a Excel
-            </a>
+        <div class="kpi-card">
+            <span class="icon">🔍</span>
+            <span class="value">0%</span>
+            <span class="label">Claridad</span>
+        </div>
+        <div class="kpi-card">
+            <span class="icon">🎭</span>
+            <span class="value">0%</span>
+            <span class="label">Cultura</span>
+        </div>
+        <div class="kpi-card">
+            <span class="icon">👔</span>
+            <span class="value">0%</span>
+            <span class="label">Liderazgo</span>
+        </div>
+        <div class="kpi-card">
+            <span class="icon">⚙️</span>
+            <span class="value">0%</span>
+            <span class="label">Operaciones</span>
+        </div>
+        <div class="kpi-card">
+            <span class="icon">⭐</span>
+            <span class="value">0%</span>
+            <span class="label">Satisfacción</span>
         </div>
     </div>
 
-    <!-- Search / Filter Bar (Scandinavian Design) -->
-    <div class="search-bar glass-card">
-        <form id="searchForm" class="filter-grid">
-            <div class="filter-item">
-                <label for="num_empleado">Num. Empleado</label>
-                <input type="text" id="num_empleado" name="num_empleado" placeholder="Ejem: 12345">
-            </div>
-            <div class="filter-item">
-                <label for="nombre">Nombre del Empleado</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Ejem: Juan Pérez">
-            </div>
-            <div class="filter-item">
-                <label for="coordinacion">Coordinación</label>
-                <select id="coordinacion" name="coordinacion">
-                    <option value="">Todas las Áreas</option>
-                    <option value="Operaciones">Operaciones</option>
-                    <option value="Sistemas">Sistemas</option>
-                    <option value="Recursos Humanos">Recursos Humanos</option>
-                </select>
-            </div>
-            <div class="filter-actions">
-                <button type="submit" class="btn btn-outline">Filtrar</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Minimalist Table -->
-    <div class="table-container glass-card">
+    <!-- Table Card -->
+    <div class="table-card">
         <table class="minimal-table">
             <thead>
                 <tr>
@@ -47,25 +48,24 @@
                     <th>Área</th>
                     <th>Fecha</th>
                     <th>IGEO</th>
-                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody id="evaluation-data">
-                <!-- Data injected via AJAX or PHP Loop -->
+                <!-- Data will be loaded via AJAX/Skeleton -->
                 <tr>
-                    <td>
-                        <div class="emp-info">
-                            <span class="emp-name">Demo Empleado</span>
-                            <span class="emp-id">#00000</span>
-                        </div>
-                    </td>
-                    <td>Analista</td>
-                    <td>Sistemas</td>
-                    <td>2024-04-10</td>
-                    <td><span class="badge kpi-green">95%</span></td>
-                    <td><span class="status-dot active"></span> Activo</td>
+                    <td><div class="skeleton" style="height: 20px; width: 120px;"></div></td>
+                    <td><div class="skeleton" style="height: 20px; width: 80px;"></div></td>
+                    <td><div class="skeleton" style="height: 20px; width: 100px;"></div></td>
+                    <td><div class="skeleton" style="height: 20px; width: 70px;"></div></td>
+                    <td><div class="skeleton" style="height: 20px; width: 40px;"></div></td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="view-actions" style="margin-top: 2rem; text-align: right;">
+        <a href="<?php echo URL_ROOT; ?>/export/download" class="btn-neo">
+            📥 Exportar Reporte Final
+        </a>
     </div>
 </div>
