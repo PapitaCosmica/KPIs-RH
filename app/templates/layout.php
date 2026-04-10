@@ -7,8 +7,8 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Main CSS (Glassmorphism) -->
-    <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/variables.css">
-    <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo URL_ROOT; ?>assets/css/variables.css">
+    <link rel="stylesheet" href="<?php echo URL_ROOT; ?>assets/css/style.css">
     <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -63,7 +63,7 @@
             }
         });
     </script>
-    <script src="<?php echo URL_ROOT; ?>/assets/js/search.js"></script>
-    <script src="<?php echo URL_ROOT; ?>/assets/js/charts.js"></script>
+    <script src="<?php echo URL_ROOT; ?>assets/js/search.js"></script>
+    <script src="<?php echo URL_ROOT; ?>assets/js/charts.js"></script>
 </body>
 </html>

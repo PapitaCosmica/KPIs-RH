@@ -5,7 +5,7 @@
 
 // Define application roots
 define('APP_ROOT', dirname(__DIR__));
-define('URL_ROOT', 'http://localhost/KPIs-RH/public');
+define('URL_ROOT', '/KPIs-RH/public/');
 define('APP_NAME', 'Dashboard Onboarding RH');
 
 // Versioning
