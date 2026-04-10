@@ -38,5 +38,19 @@ Para mantener un historial de cambios profesional, seguimos esta convención:
 
 ## Base Técnica
 - **PHP 8.x** con PDO (Patrón Singleton).
-- **CSS Vanilla** con estética Glassmorphism.
+- **CSS Vanilla** con estética Glassmorphism & Scandinavian Minimalist.
+- **PhpSpreadsheet** para reportes detallados.
 - **Chart.js** para visualización de KPIs.
+
+## Reportes y Exportación (Fase 3)
+
+El sistema ahora soporta la generación de reportes en Excel con **semaforización inteligente**:
+- **Celdas Verdes**: IGEO $\ge 85\%$.
+- **Celdas Amarillas**: IGEO entre $70\%$ y $84\%$.
+- **Celdas Rojas**: IGEO $< 70\%$.
+
+### Instalación de Dependencias
+Para habilitar el motor de Excel, es necesario ejecutar el siguiente comando en la raíz del proyecto:
+```bash
+composer update
+```

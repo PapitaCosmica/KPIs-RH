@@ -20,10 +20,14 @@
             
             <section class="page-content">
                 <!-- Content injected here -->
-                <div class="glass-card">
-                    <h1>Bienvenido al Dashboard</h1>
-                    <p>Cargando datos del sistema...</p>
-                </div>
+                <?php 
+                    if (isset($viewPath) && file_exists($viewPath)) {
+                        include_once $viewPath;
+                    } else {
+                        // Default home content
+                        include_once VIEWS_PATH . '/evaluaciones/index.php';
+                    }
+                ?>
             </section>
             
             <?php include_once TEMPLATES_PATH . '/footer.php'; ?>
