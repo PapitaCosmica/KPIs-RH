@@ -1,7 +1,7 @@
 <?php
 /**
- * Evaluation Model - Phase 2
- * Logic for KPIs and Data Persistence
+ * Evaluation Model - Final Phase
+ * Logic for 30 metrics/fields and Data Persistence
  */
 
 namespace App\Models;
@@ -20,10 +20,24 @@ class Evaluation {
     public $puesto;
     public $coordinacion;
     public $fecha_ingreso;
+    public $fecha_realizacion;
+    public $email;
     
-    // 18 Metrics
-    public $metrics = [];
-    public $feedback = [];
+    // 17 Metrics (Quantitative)
+    public $metrics = [
+        'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_integracion_equipo',
+        'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
+        'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
+        'm_claridad_procedimientos', 'm_herramientas_trabajo', 'm_espacio_fisico',
+        'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
+        'm_percepcion_imagen', 'm_efectividad_onboarding'
+    ];
+    
+    // 6 Feedback (Qualitative)
+    public $feedback = [
+        'f_utilidad_capacitaciones', 'f_faltantes_actividades', 'f_tiempo_onboarding',
+        'f_satisfaccion_decision', 'f_mejoras_proceso', 'f_comentarios_libres'
+    ];
     
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -33,28 +47,29 @@ class Evaluation {
      * Group metrics by dimensions and calculate averages (0-100)
      */
     public function calculateScores($data = null) {
-        $source = $data ?? $this->metrics;
+        $source = $data ?? [];
         
         $dimensions = [
-            'Claridad' => ['m_claridad_rol', 'm_bienvenida_equipo', 'm_capacitacion', 'm_procesos', 'm_objetivos', 'm_calidad_induccion'],
-            'Cultura' => ['m_cultura', 'm_relacion_jefe', 'm_entorno_fisico', 'm_integracion_social', 'm_valores'],
-            'Liderazgo' => ['m_vision'],
-            'Operaciones' => ['m_herramientas'],
-            'Satisfacción' => ['m_acceso_sistemas', 'm_beneficios', 'm_seguridad', 'm_soporte_rh', 'm_expectativas']
+            'Claridad' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos'],
+            'Cultura' => ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
+            'Liderazgo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
+            'Infraestructura' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
+            'Satisfacción' => ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding']
         ];
 
         $results = [];
         $totalSum = 0;
-        $totalCount = 18;
+        $totalCount = 17;
 
         foreach ($dimensions as $name => $fields) {
             $sum = 0;
             foreach ($fields as $field) {
                 $val = isset($source[$field]) ? (int)$source[$field] : 0;
                 $sum += $val;
-                $totalSum += $val;
+                if (in_array($field, $this->metrics)) {
+                    $totalSum += $val;
+                }
             }
-            // Average in scale 0-100 (since each metric is 1-10)
             $avg = (count($fields) > 0) ? ($sum / (count($fields) * 10)) * 100 : 0;
             $results[$name] = round($avg, 2);
         }
@@ -66,51 +81,29 @@ class Evaluation {
     }
 
     /**
-     * Save evaluation to database with duplicate prevention
+     * Save evaluation to database
      */
     public function save($data) {
-        // 1. Check if employee already has an evaluation
         if ($this->exists($data['num_empleado'])) {
-            throw new Exception("El empleado con número {$data['num_empleado']} ya cuenta con una evaluación registrada.");
+            throw new Exception("El colaborador con ID {$data['num_empleado']} ya ha completado su evaluación.");
         }
 
-        // 2. Prepare SQL
-        $sql = "INSERT INTO onboarding_evaluations (
-                    num_empleado, nombre, puesto, coordinacion, fecha_ingreso,
-                    m_claridad_rol, m_bienvenida_equipo, m_herramientas, m_acceso_sistemas,
-                    m_cultura, m_relacion_jefe, m_entorno_fisico, m_capacitacion,
-                    m_procesos, m_objetivos, m_integracion_social, m_valores,
-                    m_vision, m_beneficios, m_seguridad, m_soporte_rh,
-                    m_calidad_induccion, m_expectativas,
-                    f_comentarios_generales, f_sugerencias_mejora, f_obstaculos, f_lo_mejor, f_lo_peor
-                ) VALUES (
-                    :num_empleado, :nombre, :puesto, :coordinacion, :fecha_ingreso,
-                    :m_claridad_rol, :m_bienvenida_equipo, :m_herramientas, :m_acceso_sistemas,
-                    :m_cultura, :m_relacion_jefe, :m_entorno_fisico, :m_capacitacion,
-                    :m_procesos, :m_objetivos, :m_integracion_social, :m_valores,
-                    :m_vision, :m_beneficios, :m_seguridad, :m_soporte_rh,
-                    :m_calidad_induccion, :m_expectativas,
-                    :f_comentarios_generales, :f_sugerencias_mejora, :f_obstaculos, :f_lo_mejor, :f_lo_peor
-                )";
+        $fields = array_keys($data);
+        $placeholders = array_map(function($f) { return ":$f"; }, $fields);
+        
+        $sql = "INSERT INTO onboarding_evaluations (" . implode(',', $fields) . ") 
+                VALUES (" . implode(',', $placeholders) . ")";
 
         $stmt = $this->db->prepare($sql);
-        
-        // Execute with mapped data
         return $stmt->execute($data);
     }
 
-    /**
-     * Check if num_empleado already exists
-     */
     public function exists($num_empleado) {
         $stmt = $this->db->prepare("SELECT id FROM onboarding_evaluations WHERE num_empleado = :num_empleado LIMIT 1");
         $stmt->execute(['num_empleado' => $num_empleado]);
         return $stmt->fetch() ? true : false;
     }
 
-    /**
-     * Advanced Dynamic Filter
-     */
     public function filter($params) {
         $sql = "SELECT * FROM onboarding_evaluations WHERE 1=1";
         $binds = [];
@@ -128,11 +121,6 @@ class Evaluation {
         if (!empty($params['coordinacion'])) {
             $sql .= " AND coordinacion = :coordinacion";
             $binds['coordinacion'] = $params['coordinacion'];
-        }
-
-        if (!empty($params['puesto'])) {
-            $sql .= " AND puesto = :puesto";
-            $binds['puesto'] = $params['puesto'];
         }
 
         $sql .= " ORDER BY created_at DESC";
