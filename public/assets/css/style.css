@@ -189,3 +189,39 @@ body {
 .btn-neo:active {
     box-shadow: var(--neo-shadow-in);
 }
+
+/* -- Phase 6: Charts Grid -- */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.chart-card {
+    padding: 1.5rem !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.chart-card h4 {
+    align-self: flex-start;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-deep-slate);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Scrollbar Clean */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }

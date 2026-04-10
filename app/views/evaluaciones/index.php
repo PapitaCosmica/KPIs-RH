@@ -47,6 +47,22 @@
         </div>
     </div>
 
+    <!-- Charts Grid (Phase 6) -->
+    <div class="charts-grid">
+        <div class="chart-card table-card">
+            <h4>Dimensiones Onboarding</h4>
+            <canvas id="radarChart"></canvas>
+        </div>
+        <div class="chart-card table-card">
+            <h4>Evolución IGEO</h4>
+            <canvas id="lineChart"></canvas>
+        </div>
+        <div class="chart-card table-card">
+            <h4>KPI por Coordinación</h4>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
     <!-- Table Card -->
     <div class="table-card">
         <table class="minimal-table">

@@ -41,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === 'success') {
                 updateUI(result.data);
+                // Phase 6: Sync Charts
+                if (window.updateCharts) {
+                    window.updateCharts(result.data);
+                }
                 // Check for exact match for Quick Profile
                 if (result.data.length === 1 && query === result.data[0].num_empleado) {
                     showQuickProfile(result.data[0]);

@@ -40,5 +40,6 @@
         window.APP_URL = "<?php echo URL_ROOT; ?>";
     </script>
     <script src="<?php echo URL_ROOT; ?>/assets/js/search.js"></script>
+    <script src="<?php echo URL_ROOT; ?>/assets/js/charts.js"></script>
 </body>
 </html>
