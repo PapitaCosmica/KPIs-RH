@@ -1,93 +1,45 @@
-    <!-- Spotlight Search & Filters -->
-    <div class="search-controls">
-        <div class="spotlight-search">
-            <input type="text" id="spotlightInput" placeholder="Buscar por número de empleado o nombre..." autofocus>
-        </div>
-        <div class="secondary-filters">
-            <select id="coordinacionSelect" class="btn-neo">
-                <option value="">Todas las Áreas</option>
-                <option value="Operaciones">Operaciones</option>
-                <option value="Sistemas">Sistemas</option>
-                <option value="Recursos Humanos">Recursos Humanos</option>
-            </select>
-        </div>
-    </div>
+<div class="evaluations-header">
+    <h2>Listado de Evaluaciones</h2>
+    <p>Gestiona y visualiza el progreso individual de cada colaborador.</p>
+</div>
 
-    <!-- KPI Neomorphic Grid -->
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <span class="icon">📈</span>
-            <span class="value" id="val-igeo">0%</span>
-            <span class="label">IGEO Global</span>
-        </div>
-        <div class="kpi-card">
-            <span class="icon">🔍</span>
-            <span class="value" id="val-claridad">0%</span>
-            <span class="label">Claridad</span>
-        </div>
-        <div class="kpi-card">
-            <span class="icon">🎭</span>
-            <span class="value" id="val-cultura">0%</span>
-            <span class="label">Cultura</span>
-        </div>
-        <div class="kpi-card">
-            <span class="icon">👔</span>
-            <span class="value" id="val-liderazgo">0%</span>
-            <span class="label">Liderazgo</span>
-        </div>
-        <div class="kpi-card">
-            <span class="icon">⚙️</span>
-            <span class="value" id="val-operaciones">0%</span>
-            <span class="label">Operaciones</span>
-        </div>
-        <div class="kpi-card">
-            <span class="icon">⭐</span>
-            <span class="value" id="val-satisfaccion">0%</span>
-            <span class="label">Satisfacción</span>
-        </div>
+<!-- Simple List Filter -->
+<div class="search-controls" style="margin-bottom: 2rem;">
+    <div class="spotlight-search">
+        <input type="text" id="spotlightInput" placeholder="Filtrar por nombre o ID de empleado..." autofocus>
     </div>
+</div>
 
-    <!-- Charts Grid (Phase 6) -->
-    <div class="charts-grid">
-        <div class="chart-card table-card">
-            <h4>Dimensiones Onboarding</h4>
-            <canvas id="radarChart"></canvas>
-        </div>
-        <div class="chart-card table-card">
-            <h4>Evolución IGEO</h4>
-            <canvas id="lineChart"></canvas>
-        </div>
-        <div class="chart-card table-card">
-            <h4>KPI por Coordinación</h4>
-            <canvas id="barChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Table Card -->
-    <div class="evaluation-grid-container" style="margin-top: 2rem;">
+<div class="evaluation-grid-container">
     <div id="evaluationGrid" class="evaluation-grid">
-        <?php foreach ($evaluaciones as $eval): 
-            $scores = (new \App\Models\Evaluation())->calculateScores($eval);
-            $igeo = $scores['IGEO'];
-            $color = $igeo >= 80 ? '#4CAF50' : ($igeo >= 60 ? '#FFC107' : '#F44336');
-        ?>
-            <div class="evaluation-card glass-card ripple">
-                <div class="card-header">
-                    <span class="coordination-tag"><?php echo $eval['coordinacion']; ?></span>
-                    <div class="igeo-badge" style="background: <?php echo $color; ?>22; color: <?php echo $color; ?>;">
-                        <?php echo $igeo; ?>%
+        <?php if (empty($evaluaciones)): ?>
+            <div class="empty-state glass-card" style="grid-column: 1/-1; padding: 3rem; text-align: center;">
+                <p>Aún no hay evaluaciones registradas. ¡Crea la primera!</p>
+            </div>
+        <?php else: ?>
+            <?php foreach ($evaluaciones as $eval): 
+                $scores = (new \App\Models\Evaluation())->calculateScores($eval);
+                $igeo = $scores['IGEO'];
+                $color = $igeo >= 80 ? '#4CAF50' : ($igeo >= 60 ? '#FFC107' : '#F44336');
+            ?>
+                <div class="evaluation-card glass-card ripple">
+                    <div class="card-header">
+                        <span class="coordination-tag"><?php echo $eval['coordinacion']; ?></span>
+                        <div class="igeo-badge" style="background: <?php echo $color; ?>22; color: <?php echo $color; ?>;">
+                            <?php echo $igeo; ?>%
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3><?php echo $eval['nombre']; ?></h3>
+                        <p class="puesto-text"><?php echo $eval['puesto']; ?></p>
+                        <p class="date-text">📅 <?php echo date('d/m/Y', strtotime($eval['fecha_ingreso'])); ?></p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-text">Ver Detalles →</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <h3><?php echo $eval['nombre']; ?></h3>
-                    <p class="puesto-text"><?php echo $eval['puesto']; ?></p>
-                    <p class="date-text">📅 <?php echo date('d/m/Y', strtotime($eval['fecha_ingreso'])); ?></p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn-text">Ver Detalles →</button>
-                </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
         <!-- The "+" Card -->
         <a href="<?php echo URL_ROOT; ?>?url=survey" class="add-evaluation-card ripple" title="Nueva Evaluación">
@@ -97,7 +49,20 @@
     </div>
 </div>
 
+<div class="view-actions" style="margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem;">
+    <button id="btnShareSurvey" class="btn-neo" style="background: var(--color-ice-blue); color: white;">
+        🔗 Compartir Encuesta
+    </button>
+    <a href="<?php echo URL_ROOT; ?>?url=export/download" class="btn-neo">
+        📥 Exportar Reporte Final
+    </a>
+</div>
+
 <style>
+.evaluations-header { margin-bottom: 2rem; }
+.evaluations-header h2 { font-size: 1.8rem; color: var(--color-night); }
+.evaluations-header p { color: #888; }
+
 .evaluation-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -170,7 +135,6 @@
     cursor: pointer;
 }
 
-/* Add Card Style */
 .add-evaluation-card {
     display: flex;
     flex-direction: column;
@@ -184,50 +148,16 @@
     transition: all 0.3s ease;
 }
 
-.add-evaluation-card:hover {
-    background: rgba(129, 161, 193, 0.1);
-    border-color: var(--color-ice-blue);
-}
-
-.plus-icon {
-    font-size: 3rem;
-    color: var(--color-ice-blue);
-    margin-bottom: 0.5rem;
-}
-
-.add-evaluation-card span {
-    color: var(--color-ice-blue);
-    font-weight: 600;
-}
+.add-evaluation-card:hover { border-color: var(--color-ice-blue); background: rgba(129, 161, 193, 0.1); }
+.plus-icon { font-size: 3rem; color: var(--color-ice-blue); margin-bottom: 0.5rem; }
+.add-evaluation-card span { color: var(--color-ice-blue); font-weight: 600; }
 </style>
-    <div id="quickProfile" class="quick-profile glass-card" style="display:none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width: 80%; max-width: 800px; z-index: 1000; max-height: 80vh; overflow-y: auto;">
-        <div class="profile-header">
-            <h3>Perfil del Colaborador</h3>
-            <button onclick="document.getElementById('quickProfile').style.display='none'" class="btn-close">×</button>
-        </div>
-        <div id="profileContent" class="profile-body">
-            <!-- Details will be injected here -->
-        </div>
-    </div>
-</div>
-
-    <div class="view-actions" style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-        <button id="btnShareSurvey" class="btn-neo" style="background: var(--color-ice-blue); color: white;">
-            🔗 Compartir Encuesta
-        </button>
-        <a href="<?php echo URL_ROOT; ?>?url=export/download" class="btn-neo">
-            📥 Exportar Reporte Final
-        </a>
-    </div>
-</div>
 
 <script>
 document.getElementById('btnShareSurvey').addEventListener('click', () => {
     const surveyUrl = window.APP_URL + '?url=survey';
     navigator.clipboard.writeText(surveyUrl).then(() => {
         alert('Enlace de la encuesta copiado al portapapeles: ' + surveyUrl);
-    }).catch(err => {
-        console.error('Error al copiar el enlace:', err);
     });
 });
 </script>

@@ -19,25 +19,23 @@
                 <?php include_once TEMPLATES_PATH . '/sidebar.php'; ?>
             <?php endif; ?>
         
-        <main class="main-content">
-            <?php if (!isset($isIsolated)): ?>
-                <?php include_once TEMPLATES_PATH . '/header.php'; ?>
-            <?php endif; ?>
-            
-            <section class="page-content">
-                <!-- Content injected here -->
-                <?php 
-                    if (isset($viewPath) && file_exists($viewPath)) {
-                        include_once $viewPath;
-                    } else {
-                        // Default home content
-                        include_once VIEWS_PATH . '/evaluaciones/index.php';
-                    }
-                ?>
-            </section>
-            
-            <?php include_once TEMPLATES_PATH . '/footer.php'; ?>
-        </main>
+            <main class="main-content">
+                <div class="content-wrapper">
+                    <?php if (!isset($isIsolated)): ?>
+                        <?php include_once TEMPLATES_PATH . '/header.php'; ?>
+                    <?php endif; ?>
+                    
+                    <section class="page-content">
+                        <?php 
+                            if (isset($viewPath) && file_exists($viewPath)) {
+                                include_once $viewPath;
+                            }
+                        ?>
+                    </section>
+                </div>
+                
+                <?php include_once TEMPLATES_PATH . '/footer.php'; ?>
+            </main>
         </div>
     </div>
     <script>

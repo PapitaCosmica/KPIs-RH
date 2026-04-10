@@ -6,27 +6,38 @@
 // Load Configurations
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../app/models/Evaluation.php';
+require_once __DIR__ . '/../app/controllers/EvaluationController.php';
 
-// Advanced Router (Phase 9)
+use App\Controllers\EvaluationController;
+
+$controller = new EvaluationController();
 $url = isset($_GET['url']) ? $_GET['url'] : 'home';
 $viewPath = '';
+$evaluaciones = [];
+$isIsolated = false;
 
 switch ($url) {
     case 'survey':
         $viewPath = VIEWS_PATH . '/evaluaciones/form.php';
         $isIsolated = true;
         break;
+    
     case 'evaluaciones':
-    case 'home':
+        $evaluaciones = $controller->index();
         $viewPath = VIEWS_PATH . '/evaluaciones/index.php';
         break;
+
     case 'export/download':
         require_once CONTROLLERS_PATH . '/ExportController.php';
-        $controller = new App\Controllers\ExportController();
-        $controller->download();
+        $exportController = new App\Controllers\ExportController();
+        $exportController->download();
         exit;
+        
+    case 'home':
     default:
-        $viewPath = VIEWS_PATH . '/evaluaciones/index.php';
+        $url = 'home';
+        $viewPath = VIEWS_PATH . '/home/index.php';
         break;
 }
 
