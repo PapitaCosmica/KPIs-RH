@@ -9,12 +9,12 @@ define('URL_ROOT', '/KPIs-RH/public/');
 define('APP_NAME', 'Dashboard Onboarding RH');
 
 // Versioning
-define('APP_VERSION', '1.0.0');
+define('APP_VERSION', '1.1.0');
 
 // Path constants
-define('MODELS_PATH', APP_ROOT . '/app/models');
+define('MODELS_PATH', APP_ROOT . '/app/Models');
 define('VIEWS_PATH', APP_ROOT . '/app/views');
-define('CONTROLLERS_PATH', APP_ROOT . '/app/controllers');
+define('CONTROLLERS_PATH', APP_ROOT . '/app/Controllers');
 define('TEMPLATES_PATH', APP_ROOT . '/app/templates');
 
 // Timezone

@@ -1,13 +1,16 @@
 <div class="survey-wrapper">
     <div class="survey-header">
         <div class="logo-placeholder" style="margin-bottom: 1rem;">
-            <img src="https://via.placeholder.com/150x50?text=AEROPUERTO" alt="Logo">
+            <img src="https://placehold.co/200x60/81a1c1/ffffff?text=AEROPUERTO" alt="Logo">
         </div>
         <h1>Evaluación de Efectividad del Onboarding</h1>
         <p>Tu opinión es fundamental para mejorar nuestra experiencia de integración institucional.</p>
     </div>
 
     <form id="fullSurveyForm" class="glass-container survey-form">
+        <?php if (isset($tunnelToken)): ?>
+            <input type="hidden" name="tunnel_token" value="<?php echo $tunnelToken; ?>">
+        <?php endif; ?>
         <!-- Section 1: Perfil -->
         <div class="form-section glass-card">
             <h3>1. Información del Colaborador</h3>
@@ -60,21 +63,21 @@
                 $questions = [
                     'm_claridad_expectativas' => '1. ¿Qué tan claro tienes lo que se espera de ti en tu puesto?',
                     'm_seguridad_responsabilidades' => '2. ¿Qué tan seguro(a) te sientes al ejecutar tus responsabilidades?',
-                    'm_preparacion_capacitacion' => '5. ¿La capacitación recibida te preparó para los retos del puesto?',
-                    'm_efectividad_onboarding' => '7. ¿Qué tan preparado te sientes para realizar tus actividades de manera independiente?',
-                    'm_contribucion_resultados' => '8. ¿Qué tan bien comprendes cómo tu trabajo contribuye a los resultados?',
-                    'm_integracion_equipo' => '9. ¿Qué tan integrado(a) te sientes en tu equipo de trabajo?',
-                    'm_experiencia_colaboracion' => '10. ¿Qué tan positiva ha sido tu experiencia de colaboración?',
-                    'm_accesibilidad_jefe' => '11. ¿Qué tan accesible y disponible ha sido tu Jefe Inmediato?',
-                    'm_retroalimentacion_jefe' => '12. ¿Recibes retroalimentación constructiva de tu líder?',
-                    'm_conocimiento_cultura' => '13. ¿Qué tanto conoces la misión y valores del aeropuerto?',
-                    'm_alineacion_valores' => '14. ¿Te sientes alineado(a) con la cultura institucional?',
-                    'm_organizacion_induccion' => '15. ¿Cómo calificas la organización de tu primer día?',
-                    'm_herramientas_trabajo' => '16. ¿Recibiste las herramientas necesarias (PC, Accesos)?',
-                    'm_espacio_fisico' => '17. ¿Tu espacio físico de trabajo es adecuado y funcional?',
-                    'm_atencion_rh' => '18. ¿Cómo calificas la atención de Recursos Humanos?',
-                    'm_paquete_beneficios' => '19. ¿Conoces y estás satisfecho con tu paquete de prestaciones?',
-                    'm_percepcion_imagen' => '20. ¿Qué imagen tienes del aeropuerto como empleador?'
+                    'm_preparacion_capacitacion' => '3. ¿La capacitación recibida te preparó para los retos del puesto?',
+                    'm_efectividad_onboarding' => '4. ¿Qué tan preparado te sientes para realizar tus actividades de manera independiente?',
+                    'm_contribucion_resultados' => '5. ¿Qué tan bien comprendes cómo tu trabajo contribuye a los resultados?',
+                    'm_integracion_equipo' => '6. ¿Qué tan integrado(a) te sientes en tu equipo de trabajo?',
+                    'm_experiencia_colaboracion' => '7. ¿Qué tan positiva ha sido tu experiencia de colaboración?',
+                    'm_accesibilidad_jefe' => '8. ¿Qué tan accesible y disponible ha sido tu Jefe Inmediato?',
+                    'm_retroalimentacion_jefe' => '9. ¿Recibes retroalimentación constructiva de tu líder?',
+                    'm_conocimiento_cultura' => '10. ¿Qué tanto conoces la misión y valores del aeropuerto?',
+                    'm_alineacion_valores' => '11. ¿Te sientes alineado(a) con la cultura institucional?',
+                    'm_organizacion_induccion' => '12. ¿Cómo calificas la organización de tu primer día?',
+                    'm_herramientas_trabajo' => '13. ¿Recibiste las herramientas necesarias (PC, Accesos)?',
+                    'm_espacio_fisico' => '14. ¿Tu espacio físico de trabajo es adecuado y funcional?',
+                    'm_atencion_rh' => '15. ¿Cómo calificas la atención de Recursos Humanos?',
+                    'm_paquete_beneficios' => '16. ¿Conoces y estás satisfecho con tu paquete de prestaciones?',
+                    'm_percepcion_imagen' => '17. ¿Qué imagen tienes del aeropuerto como empleador?'
                 ];
                 foreach ($questions as $id => $q): ?>
                     <div class="metric-item">
@@ -97,27 +100,27 @@
             <h3>3. Experiencia y Sugerencias</h3>
             <div class="feedback-list">
                 <div class="input-group">
-                    <label>24. ¿Qué cuáles han sido tus mayores logros en este periodo? *</label>
+                    <label>18. ¿Qué cuáles han sido tus mayores logros en este periodo? *</label>
                     <textarea name="f_logros" required placeholder="Cuéntanos tus éxitos..."></textarea>
                 </div>
                 <div class="input-group">
-                    <label>25. ¿Las capacitaciones fueron útiles para tu integración? *</label>
+                    <label>19. ¿Las capacitaciones fueron útiles para tu integración? *</label>
                     <textarea name="f_utilidad_capacitaciones" required></textarea>
                 </div>
                 <div class="input-group">
-                    <label>26. ¿Qué faltó para conocer mejor tus actividades? *</label>
+                    <label>20. ¿Qué faltó para conocer mejor tus actividades? *</label>
                     <textarea name="f_faltantes_actividades" required></textarea>
                 </div>
                 <div class="input-group">
-                    <label>27. ¿Cómo calificas el tiempo total de onboarding? *</label>
+                    <label>21. ¿Cómo calificas el tiempo total de onboarding? *</label>
                     <textarea name="f_tiempo_onboarding" required></textarea>
                 </div>
                 <div class="input-group">
-                    <label>28. ¿Qué tan satisfecho estás con tu decisión de integrarte? *</label>
+                    <label>22. ¿Qué tan satisfecho estás con tu decisión de integrarte? *</label>
                     <textarea name="f_satisfaccion_decision" required></textarea>
                 </div>
                 <div class="input-group">
-                    <label>29. ¿Qué mejorarías del proceso de Onboarding? *</label>
+                    <label>23. ¿Qué mejorarías del proceso de Onboarding? *</label>
                     <textarea name="f_mejoras_proceso" required></textarea>
                 </div>
             </div>
@@ -203,7 +206,15 @@
 }
 
 .rating-option input {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    white-space: nowrap;
 }
 
 .rating-option span {
@@ -248,7 +259,19 @@
 <script>
 document.getElementById('fullSurveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    
+    // Check for invalid fields manually to give better feedback
+    const form = e.target;
+    if (!form.checkValidity()) {
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            alert('Por favor, completa todos los campos obligatorios marcados con (*).');
+            return;
+        }
+    }
+
+    const formData = new FormData(form);
     formData.append('is_ajax', 'true');
     
     try {

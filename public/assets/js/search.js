@@ -93,33 +93,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateKPIStats(data) {
-        if (!data || data.length === 0) return;
+        if (!data || data.length === 0) {
+            // Reset to 0 if no data
+            ['igeo', 'claridad', 'cultura', 'liderazgo', 'operaciones', 'satisfaccion'].forEach(key => {
+                const el = document.getElementById(`val-${key}`);
+                if (el) el.innerHTML = "0%";
+            });
+            return;
+        }
 
-        const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, infraestructura: 0, satisfaccion: 0 };
-        const dimensions = {
-            claridad: ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos'],
-            cultura: ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
-            liderazgo: ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
-            infraestructura: ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
-            satisfaccion: ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding']
-        };
+        const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, operaciones: 0, satisfaccion: 0 };
 
         data.forEach(item => {
-            let itemTotal = 0;
-            Object.keys(dimensions).forEach(dim => {
-                let dimSum = 0;
-                dimensions[dim].forEach(f => dimSum += parseInt(item[f] || 0));
-                const dimAvg = (dimSum / (dimensions[dim].length * 10)) * 100;
-                totals[dim] += dimAvg;
-                itemTotal += dimSum;
-            });
-            totals.igeo += (itemTotal / 170) * 100;
+            if (item.scores) {
+                totals.igeo += parseFloat(item.IGEO || 0);
+                totals.claridad += parseFloat(item.scores['Claridad'] || 0);
+                totals.cultura += parseFloat(item.scores['Cultura'] || 0);
+                totals.liderazgo += parseFloat(item.scores['Liderazgo'] || 0);
+                totals.operaciones += parseFloat(item.scores['Operaciones'] || 0);
+                totals.satisfaccion += parseFloat(item.scores['Satisfacción'] || 0);
+            }
         });
 
         Object.keys(totals).forEach(key => {
             const avg = Math.round(totals[key] / data.length);
             const el = document.getElementById(`val-${key}`);
-            if (el) animateValue(el, 0, avg, 800);
+            if (el) animateValue(el, parseInt(el.innerHTML) || 0, avg, 800);
         });
     }
 

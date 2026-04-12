@@ -3,13 +3,12 @@
  * Front Controller (Router)
  */
 
-// Load Configurations
+// Load Autoloader & Configurations
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../app/models/Evaluation.php';
-require_once __DIR__ . '/../app/controllers/EvaluationController.php';
 
 use App\Controllers\EvaluationController;
+use App\Controllers\ExportController;
 
 $controller = new EvaluationController();
 $url = isset($_GET['url']) ? $_GET['url'] : 'home';
@@ -22,6 +21,27 @@ switch ($url) {
         $viewPath = VIEWS_PATH . '/evaluaciones/form.php';
         $isIsolated = true;
         break;
+
+    case 'survey/store':
+        $controller->store($_POST);
+        exit;
+
+    case 'survey/create-tunnel':
+        $controller->createTunnel();
+        exit;
+
+    case 'survey/tunnel':
+        $controller->viewTunnel();
+        exit;
+
+    case 'survey/update-tunnel-base':
+        $controller->updateTunnelBase();
+        exit;
+
+    case 'survey/thanks':
+        $viewPath = VIEWS_PATH . '/evaluaciones/thanks.php';
+        $isIsolated = true;
+        break;
     
     case 'evaluaciones':
         $evaluaciones = $controller->index();
@@ -29,8 +49,7 @@ switch ($url) {
         break;
 
     case 'export/download':
-        require_once CONTROLLERS_PATH . '/ExportController.php';
-        $exportController = new App\Controllers\ExportController();
+        $exportController = new ExportController();
         $exportController->download();
         exit;
         

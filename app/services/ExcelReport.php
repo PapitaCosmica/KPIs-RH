@@ -48,18 +48,20 @@ class ExcelReport {
         foreach ($data as $evaluation) {
             // Calculate IGEO on the fly or use pre-calculated (assuming model logic)
             // For this version, let's assume we pass the raw data and calculate here for visualization
+            // Calculate IGEO using the current 19 metrics
             $totalSum = 0;
-            $count = 18;
+            $count = 19;
             $metrics = [
-                'm_claridad_rol', 'm_bienvenida_equipo', 'm_herramientas', 'm_acceso_sistemas',
-                'm_cultura', 'm_relacion_jefe', 'm_entorno_fisico', 'm_capacitacion',
-                'm_procesos', 'm_objetivos', 'm_integracion_social', 'm_valores',
-                'm_vision', 'm_beneficios', 'm_seguridad', 'm_soporte_rh',
-                'm_calidad_induccion', 'm_expectativas'
+                'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
+                'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 
+                'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 
+                'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
+                'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
+                'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados'
             ];
             
             foreach ($metrics as $m) {
-                $totalSum += (int)$evaluation[$m];
+                $totalSum += (int)($evaluation[$m] ?? 0);
             }
             $igeo = round(($totalSum / ($count * 10)) * 100, 2);
 

@@ -32,9 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initCharts() {
+    const radarEl = document.getElementById('radarChart');
+    const lineEl = document.getElementById('lineChart');
+    const barEl = document.getElementById('barChart');
+
     // 1. Radar Chart
-    const ctxRadar = document.getElementById('radarChart').getContext('2d');
-    radarChart = new Chart(ctxRadar, {
+    if (radarEl) {
+        const ctxRadar = radarEl.getContext('2d');
+        radarChart = new Chart(ctxRadar, {
         type: 'radar',
         data: {
             labels: ['Claridad', 'Cultura', 'Liderazgo', 'Operaciones', 'Satisfacción'],
@@ -53,11 +58,13 @@ function initCharts() {
             },
             animation: { duration: 1500, easing: 'easeOutQuart' }
         }
-    });
+        });
+    }
 
     // 2. Line Chart
-    const ctxLine = document.getElementById('lineChart').getContext('2d');
-    lineChart = new Chart(ctxLine, {
+    if (lineEl) {
+        const ctxLine = lineEl.getContext('2d');
+        lineChart = new Chart(ctxLine, {
         type: 'line',
         data: {
             labels: [],
@@ -78,11 +85,13 @@ function initCharts() {
                 x: { grid: { display: false } }
             }
         }
-    });
+        });
+    }
 
     // 3. Bar Chart
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    barChart = new Chart(ctxBar, {
+    if (barEl) {
+        const ctxBar = barEl.getContext('2d');
+        barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
             labels: [],
@@ -100,33 +109,33 @@ function initCharts() {
                 y: { grid: { display: false } }
             }
         }
-    });
+        });
+    }
 }
 
 /**
  * Main Sync Function called from search.js
  */
 window.updateCharts = function(data) {
-    if (!radarChart || !lineChart || !barChart) return;
+    console.log("Updating charts with data:", data); // Debug
+    if (!radarChart || !lineChart || !barChart) {
+        console.warn("Charts not initialized yet.");
+        return;
+    }
 
-    // A. Radar Logic
-    const dimensions = {
-        claridad: ['m_claridad_rol', 'm_bienvenida_equipo', 'm_capacitacion', 'm_procesos', 'm_objetivos', 'm_calidad_induccion'],
-        cultura: ['m_cultura', 'm_relacion_jefe', 'm_entorno_fisico', 'm_integracion_social', 'm_valores'],
-        liderazgo: ['m_vision'],
-        operaciones: ['m_herramientas'],
-        satisfaccion: ['m_acceso_sistemas', 'm_beneficios', 'm_seguridad', 'm_soporte_rh', 'm_expectativas']
-    };
-
+    // A. Radar Logic (Simplified by using pre-calculated scores)
     let dimAvgs = [0, 0, 0, 0, 0];
     if (data.length > 0) {
         const sums = [0, 0, 0, 0, 0];
         data.forEach(item => {
-            Object.keys(dimensions).forEach((dim, i) => {
-                let s = 0;
-                dimensions[dim].forEach(f => s += parseInt(item[f] || 0));
-                sums[i] += (s / (dimensions[dim].length * 10)) * 100;
-            });
+            if (item.scores) {
+                // Key names must match exactly what PHP produces in Evaluation.php
+                sums[0] += parseFloat(item.scores['Claridad'] || 0);
+                sums[1] += parseFloat(item.scores['Cultura'] || 0);
+                sums[2] += parseFloat(item.scores['Liderazgo'] || 0);
+                sums[3] += parseFloat(item.scores['Operaciones'] || 0);
+                sums[4] += parseFloat(item.scores['Satisfacción'] || 0);
+            }
         });
         dimAvgs = sums.map(s => Math.round(s / data.length));
     }
