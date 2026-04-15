@@ -40,14 +40,28 @@ switch ($url) {
         $controller->store($_POST);
         exit;
 
+    case 'survey/create-tunnel':
+        $controller->createTunnel();
+        exit;
+
+    case 'survey/tunnel':
+        $controller->viewTunnel();
+        exit;
+
+    case 'survey/update-tunnel-base':
+        $controller->updateTunnelBase();
+        exit;
+
     case 'survey/thanks':
         $viewPath = VIEWS_PATH . '/evaluaciones/thanks.php';
         $isIsolated = true;
         break;
     
+    case 'resultados':
     case 'evaluaciones':
         $evaluaciones = $controller->index();
         $viewPath = VIEWS_PATH . '/evaluaciones/index.php';
+        $url = 'resultados';
         break;
 
     case 'export/download':
