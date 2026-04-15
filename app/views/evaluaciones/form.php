@@ -23,9 +23,10 @@
                     <label>Nombre Completo *</label>
                     <input type="text" name="nombre" required placeholder="Tu nombre completo">
                 </div>
-                <div class="input-group">
+                <div class="input-group autocomplete-wrapper">
                     <label>Puesto de Trabajo *</label>
-                    <input type="text" name="puesto" required placeholder="Tu cargo actual">
+                    <input type="text" name="puesto" id="puestoInput" required placeholder="Escribe para buscar tu puesto..." autocomplete="off">
+                    <div class="autocomplete-dropdown" id="puestoDropdown"></div>
                 </div>
                 <div class="input-group">
                     <label>Coordinación *</label>
@@ -135,6 +136,54 @@
 </div>
 
 <style>
+/* Autocomplete */
+.autocomplete-wrapper {
+    position: relative;
+}
+.autocomplete-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    max-height: 220px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.autocomplete-dropdown.open {
+    display: block;
+}
+.ac-item {
+    padding: 0.55rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #333;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+}
+.ac-item:hover, .ac-item.active {
+    background: rgba(129, 161, 193, 0.12);
+    color: var(--color-night, #2E3440);
+}
+.ac-item mark {
+    background: rgba(129, 161, 193, 0.3);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+.ac-empty {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    color: #999;
+    font-style: italic;
+}
+
 .survey-wrapper {
     max-width: 900px;
     margin: 2rem auto;
@@ -376,4 +425,208 @@ function calculateScoresJS(source) {
 
     return results;
 }
+</script>
+
+<script>
+// ===== AUTOCOMPLETE: Puesto de Trabajo (107 opciones) =====
+(function() {
+    const puestos = [
+        'ADMINISTRADOR AEROPORTUARIO',
+        'ANALISTA DE ASUNTOS LEGALES',
+        'ANALISTA DE COMPRAS',
+        'ANALISTA DE CONTRATOS',
+        'ANALISTA DE CONTROL DE INVENTARIOS Y ARCHIVOS',
+        'ANALISTA DE CONTROL PRESUPUESTAL',
+        'ANALISTA DE EGRESOS Y CUENTAS POR PAGAR',
+        'ANALISTA DE INGRESOS Y CUENTAS POR COBRAR',
+        'ANALISTA DE NOMINA Y PRESTACIONES',
+        'ANALISTA DE PERSONAL',
+        'ANALISTA DE PLANEACION ESTRATEGICA',
+        'ANALISTA DE PROYECTOS',
+        'ANALISTA DE SEGURIDAD E HIGIENE',
+        'ANALISTA DE TESORERIA',
+        'ANALISTA JURIDICO',
+        'ASISTENTE DE DIRECCION',
+        'ASISTENTE EJECUTIVA (COORDINACION ADMINISTRATIVA)',
+        'ASISTENTE EJECUTIVA (ADMINISTRACION AEROPORTUARIA)',
+        'ATENCION AL PASAJERO',
+        'AUDITOR',
+        'AUDITOR / TITULAR DE AUDITORIA',
+        'AUDITOR JURIDICO / TITULAR DE RESPONSABILIDADES ADMINISTRATIVAS',
+        'AUDITOR JURIDICO DE INVESTIGACION / TITULAR DE ATENCION A QUEJAS',
+        'AUXILIAR ADMINISTRATIVO (MANTENIMIENTO)',
+        'AUXILIAR ADMINISTRATIVO (SEGURIDAD)',
+        'AUXILIAR ADMINISTRATIVO (DIRECCION GENERAL)',
+        'AUXILIAR ADMINISTRATIVO (DIRECCION COMERCIAL)',
+        'AUXILIAR DE CAJA GENERAL',
+        'AUXILIAR DE CAPACITACION',
+        'AUXILIAR DE COBRANZA',
+        'AUXILIAR DE COMPRAS',
+        'AUXILIAR DE CUENTAS POR PAGAR',
+        'AUXILIAR DE EGRESOS',
+        'AUXILIAR DE INFORMATICA',
+        'AUXILIAR DE INGRESOS',
+        'AUXILIAR DE INGRESOS DEL ESTACIONAMIENTO',
+        'AUXILIAR DE INVENTARIO Y ARCHIVO',
+        'AUXILIAR DE OPERACIONES',
+        'AUXILIAR DE PLANEACION ESTRATEGICA',
+        'AUXILIAR DE RECURSOS FINANCIEROS',
+        'AUXILIAR DE SERVICIOS',
+        'AUXILIAR DE SERVICIOS INTERNOS',
+        'AUXILIAR DE SOPORTE TECNICO',
+        'AUXILIAR DE SUMINISTROS Y CONTROL VEHICULAR',
+        'AUXILIAR DE EXPEDICION DE TIAS',
+        'AUXILIAR JURIDICO',
+        'BOMBERO DEL SSEI',
+        'CAJERO DEL ESTACIONAMIENTO',
+        'CAJERO GENERAL',
+        'CHOFER AEROCAR',
+        'COMANDANTE DEL SSEI',
+        'CONTADOR GENERAL',
+        'CONTROLADOR DE ACCESO DEL ESTACIONAMIENTO',
+        'COORDINADOR ADMINISTRATIVO',
+        'COORDINADOR DE PLANEACION ESTRATEGICA',
+        'COORDINADOR JURIDICO',
+        'DIRECTOR COMERCIAL',
+        'DIRECTOR GENERAL',
+        'ELECTROMECANICO',
+        'ENCARGADO DE CONTROL DE TIAS',
+        'ENCARGADO DE SEGURIDAD',
+        'ENLACE DE ADMINISTRACION AEROPORTUARIA',
+        'INSPECTOR DE ARRENDAMIENTOS',
+        'JEFE DE AREA DE ASUNTOS CORPORATIVOS',
+        'JEFE DE AREA DE ATENCION A CLIENTES',
+        'JEFE DE AREA DE CALIDAD',
+        'JEFE DE AREA DE COMUNICACION SOCIAL',
+        'JEFE DE AREA DE CONTROL PATRIMONIAL Y SERVICIOS INTERNOS',
+        'JEFE DE AREA DE DESARROLLO COMERCIAL',
+        'JEFE DE AREA DE INFORMATICA',
+        'JEFE DE AREA DE PLANEACION DE RUTAS',
+        'JEFE DE AREA DE PROFESIONALIZACION',
+        'JEFE DE DEPARTAMENTO DE ADQUISICIONES Y SERVICIOS',
+        'JEFE DE DEPARTAMENTO DE GESTION PREVENTIVA SMS',
+        'JEFE DE DEPARTAMENTO DE LO CONTENCIOSO',
+        'JEFE DE DEPARTAMENTO DE MANTENIMIENTO',
+        'JEFE DE DEPARTAMENTO DE OPERACIONES Y SERVICIOS',
+        'JEFE DE DEPARTAMENTO DE PLANEACION ESTRATEGICA',
+        'JEFE DE DEPARTAMENTO DE RECURSOS FINANCIEROS',
+        'JEFE DE DEPARTAMENTO DE RECURSOS HUMANOS',
+        'JEFE DE DEPARTAMENTO DE SEGURIDAD',
+        'JEFE DE TURNO DEL SSEI',
+        'MENSAJERO (CONTROL PATRIMONIAL)',
+        'MENSAJERO (DIRECCION GENERAL)',
+        'MONITORISTA DEL CECOM',
+        'OFICIAL DE OPERACIONES',
+        'ORGANO INTERNO DE CONTROL',
+        'PINTOR',
+        'PROMOTOR COMERCIAL',
+        'PROMOTOR DE COMUNICACION',
+        'PROMOTOR DE RUTAS',
+        'RECEPCIONISTA',
+        'SECRETARIO PARTICULAR',
+        'SECRETARIO TECNICO',
+        'SUBJEFE DE ESTACIONAMIENTO',
+        'SUBJEFE DE IMPUESTOS',
+        'SUBJEFE DE INFORMATICA',
+        'SUBJEFE DE MANTENIMIENTO (EDIFICIOS)',
+        'SUBJEFE DE MANTENIMIENTO (PLATAFORMA)',
+        'SUBJEFE DE OPERACIONES Y SERVICIOS',
+        'SUBJEFE DE SEGURIDAD',
+        'SUBJEFE DE TESORERIA',
+        'SUPERVISOR DE ESTACIONAMIENTO',
+        'SUPERVISOR DE INFRAESTRUCTURA',
+        'SUPERVISOR DE SMS',
+        'TECNICO AMBIENTALISTA',
+        'TECNICO EN MATENIMIENTO'
+    ];
+
+    const input = document.getElementById('puestoInput');
+    const dropdown = document.getElementById('puestoDropdown');
+    if (!input || !dropdown) return;
+
+    let activeIndex = -1;
+
+    function render(filtered, query) {
+        dropdown.innerHTML = '';
+        activeIndex = -1;
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div class="ac-empty">Sin coincidencias — puedes escribir un puesto personalizado</div>';
+            dropdown.classList.add('open');
+            return;
+        }
+
+        filtered.forEach((p, i) => {
+            const div = document.createElement('div');
+            div.className = 'ac-item';
+            // Highlight matching text
+            if (query) {
+                const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                div.innerHTML = p.replace(re, '<mark>$1</mark>');
+            } else {
+                div.textContent = p;
+            }
+            div.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                input.value = p;
+                close();
+            });
+            dropdown.appendChild(div);
+        });
+
+        dropdown.classList.add('open');
+    }
+
+    function close() {
+        dropdown.classList.remove('open');
+        activeIndex = -1;
+    }
+
+    input.addEventListener('input', () => {
+        const q = input.value.trim();
+        if (q.length === 0) {
+            close();
+            return;
+        }
+        const filtered = puestos.filter(p => p.toLowerCase().includes(q.toLowerCase()));
+        render(filtered, q);
+    });
+
+    input.addEventListener('focus', () => {
+        if (input.value.trim().length > 0) {
+            const filtered = puestos.filter(p => p.toLowerCase().includes(input.value.trim().toLowerCase()));
+            render(filtered, input.value.trim());
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(close, 150);
+    });
+
+    // Keyboard navigation
+    input.addEventListener('keydown', (e) => {
+        const items = dropdown.querySelectorAll('.ac-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = Math.min(activeIndex + 1, items.length - 1);
+            items.forEach(it => it.classList.remove('active'));
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = Math.max(activeIndex - 1, 0);
+            items.forEach(it => it.classList.remove('active'));
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && activeIndex >= 0) {
+            e.preventDefault();
+            input.value = items[activeIndex].textContent;
+            close();
+        } else if (e.key === 'Escape') {
+            close();
+        }
+    });
+})();
 </script>
