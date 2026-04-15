@@ -52,7 +52,8 @@
     <script>
         window.APP_URL = "<?php echo URL_ROOT; ?>";
     </script>
-    <script src="<?php echo URL_ROOT; ?>assets/js/charts.js?v=1.5"></script>
-    <script src="<?php echo URL_ROOT; ?>assets/js/search.js?v=1.5"></script>
+    <script src="<?php echo URL_ROOT; ?>assets/js/charts.js?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo URL_ROOT; ?>assets/js/search.js?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo URL_ROOT; ?>assets/js/filter.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

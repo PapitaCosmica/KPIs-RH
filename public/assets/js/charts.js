@@ -4,6 +4,7 @@
  */
 
 let radarChart, lineChart, barChart;
+let donutEfectividad, donutIntegracion, donutClaridad, donutComprension;
 
 const scandiColors = {
     iceBlue: 'rgba(129, 161, 193, 0.7)',
@@ -12,7 +13,12 @@ const scandiColors = {
     frost: 'rgba(236, 239, 244, 0.8)',
     success: '#81A1C1',
     warning: '#EBCB8B',
-    danger: '#BF616A'
+    danger: '#BF616A',
+    // New Survey Branding Colors
+    onbBlue: '#81A1C1',
+    onbOrange: '#D08770',
+    onbGreen: '#A3BE8C',
+    onbPurple: '#B48EAD'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -111,6 +117,40 @@ function initCharts() {
         }
         });
     }
+
+    // 4. Donut Charts (Surveys)
+    const donutSpecs = [
+        { id: 'donutEfectividad', color: scandiColors.onbBlue },
+        { id: 'donutIntegracion', color: scandiColors.onbOrange },
+        { id: 'donutClaridad', color: scandiColors.onbGreen },
+        { id: 'donutComprension', color: scandiColors.onbPurple }
+    ];
+
+    donutSpecs.forEach(spec => {
+        const el = document.getElementById(spec.id);
+        if (el) {
+            const chart = new Chart(el.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: [spec.color, '#ECEFF4'],
+                        borderWidth: 0,
+                        cutout: '80%'
+                    }]
+                },
+                options: {
+                    plugins: { tooltip: { enabled: false } },
+                    events: [],
+                    animation: { duration: 1500, easing: 'easeOutQuart' }
+                }
+            });
+            if (spec.id === 'donutEfectividad') donutEfectividad = chart;
+            if (spec.id === 'donutIntegracion') donutIntegracion = chart;
+            if (spec.id === 'donutClaridad') donutClaridad = chart;
+            if (spec.id === 'donutComprension') donutComprension = chart;
+        }
+    });
 }
 
 /**
@@ -128,14 +168,13 @@ window.updateCharts = function(data) {
     if (data.length > 0) {
         const sums = [0, 0, 0, 0, 0];
         data.forEach(item => {
-            if (item.scores) {
-                // Key names must match exactly what PHP produces in Evaluation.php
-                sums[0] += parseFloat(item.scores['Claridad'] || 0);
-                sums[1] += parseFloat(item.scores['Cultura'] || 0);
-                sums[2] += parseFloat(item.scores['Liderazgo'] || 0);
-                sums[3] += parseFloat(item.scores['Operaciones'] || 0);
-                sums[4] += parseFloat(item.scores['Satisfacción'] || 0);
-            }
+            // Ensure scores exist and handle key names carefully
+            const s = item.scores || {};
+            sums[0] += parseFloat(s['Claridad'] || 0);
+            sums[1] += parseFloat(s['Cultura'] || 0);
+            sums[2] += parseFloat(s['Liderazgo'] || 0);
+            sums[3] += parseFloat(s['Operaciones'] || 0);
+            sums[4] += parseFloat(s['Satisfacción'] || s['Satisfacción'] || 0);
         });
         dimAvgs = sums.map(s => Math.round(s / data.length));
     }
@@ -167,4 +206,38 @@ window.updateCharts = function(data) {
     barChart.data.labels = areas;
     barChart.data.datasets[0].data = areas.map(a => Math.round(areaData[a].sum / areaData[a].count));
     barChart.update();
+
+    // D. Donut Charts Logic
+    const newDonutStats = {
+        'Efectividad_Onb': { chart: donutEfectividad, el: 'perc-efectividad' },
+        'Integracion_Equipo': { chart: donutIntegracion, el: 'perc-integracion' },
+        'Claridad_Puesto': { chart: donutClaridad, el: 'perc-claridad' },
+        'Comprension_Org': { chart: donutComprension, el: 'perc-comprension' }
+    };
+
+    Object.keys(newDonutStats).forEach(key => {
+        const spec = newDonutStats[key];
+        if (!spec.chart) {
+            console.warn(`Chart for ${key} not initialized`);
+            return;
+        }
+
+        let avg = 0;
+        if (data.length > 0) {
+            const sum = data.reduce((acc, item) => {
+                const s = item.scores || {};
+                const val = parseFloat(s[key] || 0);
+                return acc + val;
+            }, 0);
+            avg = Math.round(sum / data.length);
+        }
+
+        console.log(`Donut ${key} avg:`, avg); // Debug log
+
+        spec.chart.data.datasets[0].data = [avg, Math.max(0, 100 - avg)];
+        spec.chart.update();
+
+        const labelEl = document.getElementById(spec.el);
+        if (labelEl) labelEl.innerHTML = `${avg}%`;
+    });
 }

@@ -30,14 +30,14 @@ class Evaluation {
         'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 
         'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
         'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
-        'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados'
+        'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados',
+        'f_tiempo_onboarding', 'f_satisfaccion_decision'
     ];
     
-    // 7 Feedback (Qualitative)
+    // 5 Feedback (Qualitative)
     public $feedback = [
         'f_logros', 'f_utilidad_capacitaciones', 'f_faltantes_actividades', 
-        'f_tiempo_onboarding', 'f_satisfaccion_decision', 'f_mejoras_proceso', 
-        'f_comentarios_libres'
+        'f_mejoras_proceso', 'f_comentarios_libres'
     ];
     
     public function __construct() {
@@ -50,33 +50,46 @@ class Evaluation {
     public function calculateScores($data = null) {
         $source = $data ?? [];
         
+        // Detailed Mapping based on Table Requirement:
+        // GREEN: 1, 2, 5, 7  -> Claridad_Puesto
+        // ORANGE: 8, 9, 10, 11, 12 -> Integracion_Equipo
+        // PURPLE: 13, 14, 15, 16, 17 -> Comprension_Org
+        // BLUE: 18, 19, 21, 22 -> Efectividad_Onb
+        
         $dimensions = [
             'Claridad' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos', 'm_contribucion_resultados'],
             'Cultura' => ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
             'Liderazgo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
             'Operaciones' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
-            'Satisfacción' => ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion']
+            'Satisfacción' => ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion'],
+            
+            // New Dashboard Metrics (Surveys)
+            'Claridad_Puesto' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
+            'Integracion_Equipo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+            'Comprension_Org' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
+            'Efectividad_Onb' => ['m_efectividad_onboarding', 'm_contribucion_resultados', 'f_tiempo_onboarding', 'f_satisfaccion_decision']
         ];
 
         $results = [];
         $totalSum = 0;
-        $totalCount = 19;
+        $totalCount = 19; // Base IGEO is still on the main 19
 
         foreach ($dimensions as $name => $fields) {
             $sum = 0;
             foreach ($fields as $field) {
                 $val = isset($source[$field]) ? (int)$source[$field] : 0;
                 $sum += $val;
-                if (in_array($field, $this->metrics)) {
-                    $totalSum += $val;
-                }
             }
             $avg = (count($fields) > 0) ? ($sum / (count($fields) * 10)) * 100 : 0;
             $results[$name] = round($avg, 2);
         }
 
-        // IGEO: Índice Global de Efectividad del Onboarding
-        $results['IGEO'] = round(($totalSum / ($totalCount * 10)) * 100, 2);
+        // Global IGEO Calculation
+        $globalSum = 0;
+        foreach ($this->metrics as $metric) {
+            $globalSum += isset($source[$metric]) ? (int)$source[$metric] : 0;
+        }
+        $results['IGEO'] = round(($globalSum / (count($this->metrics) * 10)) * 100, 2);
 
         return $results;
     }
@@ -136,6 +149,16 @@ class Evaluation {
         if (!empty($params['coordinacion'])) {
             $sql .= " AND coordinacion = :coordinacion";
             $binds['coordinacion'] = $params['coordinacion'];
+        }
+
+        if (!empty($params['date_start'])) {
+            $sql .= " AND fecha_ingreso >= :date_start";
+            $binds['date_start'] = $params['date_start'];
+        }
+
+        if (!empty($params['date_end'])) {
+            $sql .= " AND fecha_ingreso <= :date_end";
+            $binds['date_end'] = $params['date_end'];
         }
 
         $sql .= " ORDER BY created_at DESC";

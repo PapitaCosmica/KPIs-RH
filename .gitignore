@@ -1,16 +1,7 @@
-# Dependencies
-/vendor
-composer.lock
-
-# Configuration
-config/db.php
-# (Note: I'll include db.php for now as per user request to have the structure, 
-# but usually it's ignored. I'll include it because it's the boilerplate)
-
-# IDE / System
 .DS_Store
 .vscode/
-.idea/
-
-# Environment
-.env
+node_modules/
+config/database_local.php
+temp/
+logs/
+*.log

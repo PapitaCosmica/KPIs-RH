@@ -256,11 +256,27 @@
 }
 </style>
 
-<script>
+<!-- Firebase SDK Integration -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBVRsb03EbnY3IKRAbc-3s5jTjM5X3kGxM",
+  authDomain: "kpi-rh-c667e.firebaseapp.com",
+  projectId: "kpi-rh-c667e",
+  storageBucket: "kpi-rh-c667e.firebasestorage.app",
+  messagingSenderId: "59652617692",
+  appId: "1:59652617692:web:789034aa88c4ef1a4f0b19"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 document.getElementById('fullSurveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Check for invalid fields manually to give better feedback
+    // Check for invalid fields
     const form = e.target;
     if (!form.checkValidity()) {
         const firstInvalid = form.querySelector(':invalid');
@@ -272,9 +288,28 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
     }
 
     const formData = new FormData(form);
-    formData.append('is_ajax', 'true');
+    const dataObj = Object.fromEntries(formData.entries());
     
+    // UI Feedback: Disable button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = "Enviando...";
+    submitBtn.disabled = true;
+
     try {
+        // 1. DUAL-WRITE: Step A -> Cloud Firestore (for Vercel Dashboard)
+        const scores = calculateScoresJS(dataObj);
+        await addDoc(collection(db, "onboarding_evaluations"), {
+            ...dataObj,
+            scores: scores,
+            IGEO: scores.IGEO,
+            created_at: serverTimestamp(),
+            source: 'Web App'
+        });
+        console.log("Firebase Sync: OK");
+
+        // 2. DUAL-WRITE: Step B -> Local SQL (for Backup)
+        formData.append('is_ajax', 'true');
         const response = await fetch('<?php echo URL_ROOT; ?>?url=survey/store', {
             method: 'POST',
             body: formData
@@ -282,14 +317,61 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert('¡Gracias! Tu evaluación ha sido enviada correctamente.');
+            alert('¡Gracias! Tu evaluación ha sido enviada correctamente y sincronizada en la nube.');
             window.location.href = '<?php echo URL_ROOT; ?>?url=survey/thanks';
         } else {
-            alert('Error: ' + result.message);
+            alert('Error en servidor local: ' + result.message + '. Sin embargo, tus datos se guardaron en la nube.');
         }
     } catch (err) {
-        console.error(err);
-        alert('Ocurrió un error al enviar el formulario.');
+        console.error("Sync Error:", err);
+        alert('Ocurrió un error. Verifica tu conexión a internet.');
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
 });
+
+/**
+ * Replicates PHP calculateScores logic in JS for Firestore metadata
+ */
+function calculateScoresJS(source) {
+    const dimensions = {
+        'Claridad': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos', 'm_contribucion_resultados'],
+        'Cultura': ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
+        'Liderazgo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
+        'Operaciones': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
+        'Satisfacción': ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion'],
+        'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
+        'Integracion_Equipo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+        'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
+        'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'f_tiempo_onboarding', 'f_satisfaccion_decision']
+    };
+
+    const results = {};
+    let globalSum = 0;
+    let globalCount = 0;
+
+    Object.keys(dimensions).forEach(name => {
+        let sum = 0;
+        dimensions[name].forEach(field => {
+            const val = parseInt(source[field]) || 0;
+            sum += val;
+        });
+        results[name] = Math.round((sum / (dimensions[name].length * 10)) * 100 * 100) / 100;
+    });
+
+    const metrics = [
+        'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
+        'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
+        'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
+        'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
+        'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
+        'm_paquete_beneficios', 'm_percepcion_imagen', 'f_tiempo_onboarding', 'f_satisfaccion_decision'
+    ];
+
+    metrics.forEach(m => { globalSum += parseInt(source[m]) || 0; });
+    results['IGEO'] = Math.round((globalSum / (metrics.length * 10)) * 100 * 100) / 100;
+
+    return results;
+}
 </script>
