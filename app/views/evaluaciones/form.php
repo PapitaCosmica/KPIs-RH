@@ -337,27 +337,22 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
 /**
  * Replicates PHP calculateScores logic in JS for Firestore metadata - v1.6.1
  */
+/**
+ * Replicates PHP calculateScores logic in JS for Firestore metadata - v1.6.2
+ */
 function calculateScoresJS(source) {
     const dimensions = {
-        'Claridad': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos', 'm_contribucion_resultados'],
-        'Cultura': ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
-        'Liderazgo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
-        'Operaciones': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
-        'Satisfacción': ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion'],
-        
-        // Survey Dimensions (Cloud)
         'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
-        'Integracion_Equipo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+        'Integracion_Equipo': ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
         'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-        'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados'] // Fields f_ are excluded as they are textareas
+        'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
     };
 
     const results = {};
     Object.keys(dimensions).forEach(name => {
         let sum = 0;
         dimensions[name].forEach(field => {
-            const val = parseInt(source[field]) || 0;
-            sum += val;
+            sum += parseInt(source[field]) || 0;
         });
         results[name] = Math.round((sum / (dimensions[name].length * 10)) * 100);
     });

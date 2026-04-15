@@ -57,17 +57,10 @@ class Evaluation {
         // BLUE: 18, 19, 21, 22 -> Efectividad_Onb
         
         $dimensions = [
-            'Claridad' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_claridad_procedimientos', 'm_contribucion_resultados'],
-            'Cultura' => ['m_integracion_equipo', 'm_experiencia_colaboracion', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_percepcion_imagen'],
-            'Liderazgo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
-            'Operaciones' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
-            'Satisfacción' => ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion'],
-            
-            // Survey Dimensions (Cloud/Export)
             'Claridad_Puesto' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
-            'Integracion_Equipo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+            'Integracion_Equipo' => ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
             'Comprension_Org' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-            'Efectividad_Onb' => ['m_efectividad_onboarding', 'm_contribucion_resultados']
+            'Efectividad_Onb' => ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
         ];
 
         $results = [];
@@ -80,7 +73,7 @@ class Evaluation {
             $results[$name] = round($avg, 0);
         }
 
-        // Global IGEO Calculation (Numeric Only)
+        // Global IGEO Calculation (Numeric Only - 17 questions)
         $numericMetrics = [
             'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
             'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',

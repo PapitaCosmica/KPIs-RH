@@ -1,6 +1,6 @@
 /**
- * Spotlight Search & KPI Engine - v1.6.1
- * Bugfix: Safe Numeric Calculation & Complete Qualitative Feedback
+ * Spotlight Search & KPI Engine - v1.6.2
+ * Final Math Fix: 17-Question Mapping & Corrected Dimensions
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             scoresContainer.appendChild(div);
         });
 
-        // Render Feedback (COMPLETE CUALITATIVO)
+        // Feedback section
         const feedbackContainer = document.getElementById('modalFeedback');
         feedbackContainer.innerHTML = '';
         const feedbackLabels = {
@@ -208,41 +208,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Replicated score calculation system - v1.6.1
-     * SAFE from NaN (using parseInt(x) || 0)
-     * ONLY numerical fields used for averages
+     * FINAL CORRECTED CALCULATION - v1.6.2
+     * Mapping precisely matches the 17-question survey form
      */
     function calculateScoresJS(source) {
         const dimensions = {
             'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
-            'Integracion_Equipo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+            'Integracion_Equipo': ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
             'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-            'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados'] // Removed f_ fields (textareas)
+            'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
         };
 
         const metricsList = [
             'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
-            'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 
-            'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 
-            'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
-            'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
-            'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados'
+            'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
+            'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
+            'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
+            'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
+            'm_paquete_beneficios', 'm_percepcion_imagen'
         ];
 
         const results = {};
         for (const [name, fields] of Object.entries(dimensions)) {
             let sum = 0;
             fields.forEach(f => {
-                const val = parseInt(source[f]) || 0;
-                sum += val;
+                sum += parseInt(source[f]) || 0;
             });
             results[name] = Math.round((sum / (fields.length * 10)) * 100);
         }
 
         let globalSum = 0;
         metricsList.forEach(m => {
-            const val = parseInt(source[m]) || 0;
-            globalSum += val;
+            globalSum += parseInt(source[m]) || 0;
         });
         results['IGEO'] = Math.round((globalSum / (metricsList.length * 10)) * 100);
 
@@ -251,19 +248,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.updateKPIStats = function(data) {
         if (!data || data.length === 0) return;
-        const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, operaciones: 0, satisfaccion: 0 };
-        data.forEach(item => {
+        
+        // Filter out records where scores are completely zero (broken tests)
+        // This ensures the average is reflective only of real data
+        const validData = data.filter(item => {
             const sc = calculateScoresJS(item);
-            totals.igeo += sc.IGEO || 0;
-            totals.claridad += sc.Claridad_Puesto || 0;
-            totals.cultura += sc.Integracion_Equipo || 0;
-            totals.liderazgo += sc.Integracion_Equipo || 0; // Use Integration as proxy for Leadership metrics
-            totals.operaciones += sc.Comprension_Org || 0;
-            totals.satisfaccion += sc.Efectividad_Onb || 0;
+            return sc.IGEO > 0;
+        });
+        
+        if (validData.length === 0) return;
+
+        const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, operaciones: 0, satisfaccion: 0 };
+        validData.forEach(item => {
+            const sc = calculateScoresJS(item);
+            totals.igeo += sc.IGEO;
+            totals.claridad += sc.Claridad_Puesto;
+            totals.cultura += sc.Integracion_Equipo;
+            totals.liderazgo += sc.Integracion_Equipo; 
+            totals.operaciones += sc.Comprension_Org;
+            totals.satisfaccion += sc.Efectividad_Onb;
         });
         
         Object.keys(totals).forEach(key => {
-            const avg = Math.round(totals[key] / data.length);
+            const avg = Math.round(totals[key] / validData.length);
             const el = document.getElementById(`val-${key}`);
             if (el) window.animateValue(el, parseInt(el.innerHTML) || 0, avg, 800);
         });
