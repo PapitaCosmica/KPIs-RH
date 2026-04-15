@@ -5,7 +5,14 @@
 
 // Define application roots
 define('APP_ROOT', dirname(__DIR__));
-define('URL_ROOT', '/KPIs-RH/public/');
+
+// Dynamic URL Root (Local vs Cloud)
+if (isset($_SERVER['HTTP_HOST']) && str_contains($_SERVER['HTTP_HOST'], 'vercel.app')) {
+    define('URL_ROOT', '/');
+} else {
+    define('URL_ROOT', '/KPIs-RH/public/');
+}
+
 define('APP_NAME', 'Dashboard Onboarding RH');
 
 // Versioning
