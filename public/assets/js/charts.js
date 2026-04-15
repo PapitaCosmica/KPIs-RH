@@ -1,6 +1,7 @@
 /**
- * Charts Engine - Phase 6
- * Scandinavian Aesthetic & Real-time Update Logic
+ * Charts Engine - v1.7.1
+ * CRITICAL FIX: All charts now RECALCULATE scores from raw data
+ * instead of reading stale pre-calculated scores from Firestore.
  */
 
 let radarChart, lineChart, barChart;
@@ -11,18 +12,48 @@ const scandiColors = {
     iceBlueSolid: 'rgba(129, 161, 193, 1)',
     slate: 'rgba(76, 86, 106, 0.7)',
     frost: 'rgba(236, 239, 244, 0.8)',
-    success: '#81A1C1',
-    warning: '#EBCB8B',
-    danger: '#BF616A',
-    // New Survey Branding Colors
     onbBlue: '#81A1C1',
     onbOrange: '#D08770',
     onbGreen: '#A3BE8C',
     onbPurple: '#B48EAD'
 };
 
+/**
+ * SINGLE SOURCE OF TRUTH for score calculation.
+ * Exactly 17 numeric questions from the survey form.
+ */
+function calcScores(source) {
+    const dimensions = {
+        'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
+        'Integracion_Equipo': ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+        'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
+        'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
+    };
+
+    const metricsList = [
+        'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
+        'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
+        'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
+        'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
+        'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
+        'm_paquete_beneficios', 'm_percepcion_imagen'
+    ];
+
+    const results = {};
+    for (const [name, fields] of Object.entries(dimensions)) {
+        let sum = 0;
+        fields.forEach(f => { sum += parseInt(source[f]) || 0; });
+        results[name] = Math.round((sum / (fields.length * 10)) * 100);
+    }
+
+    let globalSum = 0;
+    metricsList.forEach(m => { globalSum += parseInt(source[m]) || 0; });
+    results['IGEO'] = Math.round((globalSum / (metricsList.length * 10)) * 100);
+
+    return results;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Global Configuration
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.color = '#4C566A';
     Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(255, 255, 255, 0.8)';
@@ -42,83 +73,76 @@ function initCharts() {
     const lineEl = document.getElementById('lineChart');
     const barEl = document.getElementById('barChart');
 
-    // 1. Radar Chart
     if (radarEl) {
-        const ctxRadar = radarEl.getContext('2d');
-        radarChart = new Chart(ctxRadar, {
-        type: 'radar',
-        data: {
-            labels: ['Claridad', 'Cultura', 'Liderazgo', 'Operaciones', 'Satisfacción'],
-            datasets: [{
-                label: 'Dimensiones',
-                data: [0, 0, 0, 0, 0],
-                backgroundColor: scandiColors.iceBlue,
-                borderColor: scandiColors.iceBlueSolid,
-                pointBackgroundColor: scandiColors.iceBlueSolid,
-                fill: true
-            }]
-        },
-        options: {
-            scales: {
-                r: { min: 0, max: 100, ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.05)' } }
+        radarChart = new Chart(radarEl.getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Claridad', 'Integración', 'Comprensión', 'Efectividad'],
+                datasets: [{
+                    label: 'Dimensiones',
+                    data: [0, 0, 0, 0],
+                    backgroundColor: scandiColors.iceBlue,
+                    borderColor: scandiColors.iceBlueSolid,
+                    pointBackgroundColor: scandiColors.iceBlueSolid,
+                    fill: true
+                }]
             },
-            animation: { duration: 1500, easing: 'easeOutQuart' }
-        }
+            options: {
+                scales: {
+                    r: { min: 0, max: 100, ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.05)' } }
+                },
+                animation: { duration: 1500, easing: 'easeOutQuart' }
+            }
         });
     }
 
-    // 2. Line Chart
     if (lineEl) {
-        const ctxLine = lineEl.getContext('2d');
-        lineChart = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'IGEO Promedio',
-                data: [],
-                borderColor: scandiColors.iceBlueSolid,
-                backgroundColor: 'transparent',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            scales: {
-                y: { min: 0, max: 100, grid: { display: false } },
-                x: { grid: { display: false } }
+        lineChart = new Chart(lineEl.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'IGEO Promedio',
+                    data: [],
+                    borderColor: scandiColors.iceBlueSolid,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                scales: {
+                    y: { min: 0, max: 100, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
             }
-        }
         });
     }
 
-    // 3. Bar Chart
     if (barEl) {
-        const ctxBar = barEl.getContext('2d');
-        barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Desempeño por Área',
-                data: [],
-                backgroundColor: scandiColors.iceBlue,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            scales: {
-                x: { min: 0, max: 100, grid: { display: false } },
-                y: { grid: { display: false } }
+        barChart = new Chart(barEl.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Desempeño por Área',
+                    data: [],
+                    backgroundColor: scandiColors.iceBlue,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: { min: 0, max: 100, grid: { display: false } },
+                    y: { grid: { display: false } }
+                }
             }
-        }
         });
     }
 
-    // 4. Donut Charts (Surveys)
     const donutSpecs = [
         { id: 'donutEfectividad', color: scandiColors.onbBlue },
         { id: 'donutIntegracion', color: scandiColors.onbOrange },
@@ -155,38 +179,46 @@ function initCharts() {
 
 /**
  * Main Sync Function called from search.js
+ * CRITICAL: Recalculates ALL scores from raw fields instead of using
+ * stale pre-calculated item.scores from Firestore.
  */
 window.updateCharts = function(data) {
-    console.log("Updating charts with data:", data); // Debug
-    if (!radarChart || !lineChart || !barChart) {
-        console.warn("Charts not initialized yet.");
-        return;
-    }
+    if (!radarChart || !lineChart || !barChart) return;
 
-    // A. Radar Logic (Simplified by using pre-calculated scores)
-    let dimAvgs = [0, 0, 0, 0, 0];
-    if (data.length > 0) {
-        const sums = [0, 0, 0, 0, 0];
-        data.forEach(item => {
-            // Ensure scores exist and handle key names carefully
-            const s = item.scores || {};
-            sums[0] += parseFloat(s['Claridad'] || 0);
-            sums[1] += parseFloat(s['Cultura'] || 0);
-            sums[2] += parseFloat(s['Liderazgo'] || 0);
-            sums[3] += parseFloat(s['Operaciones'] || 0);
-            sums[4] += parseFloat(s['Satisfacción'] || s['Satisfacción'] || 0);
+    // Filter out broken records (no real metric data)
+    const validData = data.filter(item => {
+        const sc = calcScores(item);
+        return sc.IGEO > 0;
+    });
+
+    // A. Radar Chart — recalculate from raw fields
+    let dimAvgs = [0, 0, 0, 0];
+    if (validData.length > 0) {
+        const sums = { Claridad_Puesto: 0, Integracion_Equipo: 0, Comprension_Org: 0, Efectividad_Onb: 0 };
+        validData.forEach(item => {
+            const sc = calcScores(item);
+            sums.Claridad_Puesto += sc.Claridad_Puesto;
+            sums.Integracion_Equipo += sc.Integracion_Equipo;
+            sums.Comprension_Org += sc.Comprension_Org;
+            sums.Efectividad_Onb += sc.Efectividad_Onb;
         });
-        dimAvgs = sums.map(s => Math.round(s / data.length));
+        dimAvgs = [
+            Math.round(sums.Claridad_Puesto / validData.length),
+            Math.round(sums.Integracion_Equipo / validData.length),
+            Math.round(sums.Comprension_Org / validData.length),
+            Math.round(sums.Efectividad_Onb / validData.length)
+        ];
     }
     radarChart.data.datasets[0].data = dimAvgs;
     radarChart.update();
 
-    // B. Line Chart (Evolution)
+    // B. Line Chart — recalculate IGEO from raw fields
     const timeData = {};
-    data.forEach(item => {
-        const date = item.fecha_ingreso;
+    validData.forEach(item => {
+        const date = item.fecha_ingreso || 'Sin fecha';
+        const sc = calcScores(item);
         if (!timeData[date]) timeData[date] = { sum: 0, count: 0 };
-        timeData[date].sum += parseFloat(item.IGEO || 0);
+        timeData[date].sum += sc.IGEO;
         timeData[date].count++;
     });
     const sortedDates = Object.keys(timeData).sort();
@@ -194,12 +226,13 @@ window.updateCharts = function(data) {
     lineChart.data.datasets[0].data = sortedDates.map(d => Math.round(timeData[d].sum / timeData[d].count));
     lineChart.update();
 
-    // C. Bar Chart (Comparative)
+    // C. Bar Chart — recalculate IGEO from raw fields
     const areaData = {};
-    data.forEach(item => {
+    validData.forEach(item => {
         const area = item.coordinacion || 'S/A';
+        const sc = calcScores(item);
         if (!areaData[area]) areaData[area] = { sum: 0, count: 0 };
-        areaData[area].sum += parseFloat(item.IGEO || 0);
+        areaData[area].sum += sc.IGEO;
         areaData[area].count++;
     });
     const areas = Object.keys(areaData);
@@ -207,35 +240,26 @@ window.updateCharts = function(data) {
     barChart.data.datasets[0].data = areas.map(a => Math.round(areaData[a].sum / areaData[a].count));
     barChart.update();
 
-    // D. Donut Charts Logic
-    const newDonutStats = {
+    // D. Donut Charts — recalculate from raw fields
+    const donutMap = {
         'Efectividad_Onb': { chart: donutEfectividad, el: 'perc-efectividad' },
         'Integracion_Equipo': { chart: donutIntegracion, el: 'perc-integracion' },
         'Claridad_Puesto': { chart: donutClaridad, el: 'perc-claridad' },
         'Comprension_Org': { chart: donutComprension, el: 'perc-comprension' }
     };
 
-    Object.keys(newDonutStats).forEach(key => {
-        const spec = newDonutStats[key];
+    Object.keys(donutMap).forEach(key => {
+        const spec = donutMap[key];
         if (!spec.chart) return;
-
-        // Filter valid data to ignore broken test records
-        const validData = data.filter(item => {
-            const ig = parseFloat(item.IGEO || 0);
-            return ig > 0;
-        });
 
         let avg = 0;
         if (validData.length > 0) {
             const sum = validData.reduce((acc, item) => {
-                const s = item.scores || {};
-                const val = parseFloat(s[key] || 0);
-                return acc + val;
+                const sc = calcScores(item);
+                return acc + sc[key];
             }, 0);
             avg = Math.round(sum / validData.length);
         }
-
-        console.log(`Donut ${key} avg:`, avg); // Debug log
 
         spec.chart.data.datasets[0].data = [avg, Math.max(0, 100 - avg)];
         spec.chart.update();
