@@ -1,46 +1,30 @@
-# Dashboard de Onboarding KPIs-RH
+# Dashboard de Onboarding KPIs-RH v1.5.1
 
-Este Dashboard es una solución avanzada de Inteligencia de Negocio para el área de Recursos Humanos, diseñada bajo estándares de arquitectura MVC y una estética premium inspirada en macOS y el minimalismo escandinavo.
+Este Dashboard es una solución avanzada de Inteligencia de Negocio para el área de Recursos Humanos, diseñada bajo estándares de arquitectura MVC y una estética premium inspirada en macOS Apple Design.
 
-## 🚀 Arquitectura del Sistema
+## 🚀 Novedades v1.5.1 (Cloud Ready)
+- **Sincronización Híbrida (Dual-Sync)**: Los datos se guardan simultáneamente en **MySQL (Local)** y **Google Firebase Firestore (Nube)**.
+- **Modo Inteligente Vercel**: El sistema detecta automáticamente si está en producción y conecta con la nube sin necesidad de cambios manuales.
+- **Control Center (Filtros Pro)**: Nuevo panel de filtrado dinámico por Coordinación, Rango de Flechas e Identidad.
+
+## 📊 Arquitectura del Sistema
 El sistema sigue el patrón **Modelo-Vista-Controlador (MVC)** con un **Front Controller** para mayor escalabilidad y seguridad.
 
 - **/app**: Lógica central (Modelos, Controladores, Vistas).
-- **/config**: Configuración global y Conexión Singleton (PDO).
+- **/config**: Configuración global y Conexión Híbrida.
 - **/public**: Assets (CSS Glassmorphism, JS Reactivo, Chart.js).
-- **/database**: Migraciones SQL para control de versiones de datos.
+- **/vercel.json**: Configuración de despliegue para Serverless PHP.
 
-## 📊 Módulos Principales
-
-### 1. Motor de Inteligencia (Fase 2)
-Cálculo automático del **IGEO** (Índice Global de Efectividad del Onboarding) segmentado en 5 dimensiones: Claridad, Cultura, Liderazgo, Operaciones y Satisfacción.
-
-### 2. Visualización y Reportes (Fase 3 & 6)
-- **Gráficas Interactivas**: Radar de dimensiones, Evolución temporal y Comparativa por área.
-- **Exportación a Excel**: Generación de reportes con semaforización automática (Verde/Amarillo/Rojo).
-
-### 3. Búsqueda Spotlight (Fase 5)
-Barra de búsqueda asíncrona (AJAX) con tecnología **Debounce** para consulta instantánea de expedientes y actualización de métricas en tiempo real.
+##  Blueprints Técnicos
+- **Frontend**: ES6 Modules, Chart.js, Vanilla CSS Glassmorphism.
+- **Backend**: PHP 8.x, PDO Singleton, Firebase SDK integration.
+- **Database**: Dual-Write Strategy (SQL + NoSQL).
 
 ## 🛠️ Guía de Instalación
 
-1. **Requisitos**: PHP 8.x, MySQL (XAMPP), Composer.
-2. **Base de Datos**: 
-   - Crear base `onboarding_db`.
-   - Ejecutar `php database/migrate.php` o importar el SQL en `/database/migrations/`.
-3. **Dependencias**:
-   ```bash
-   composer update
-   ```
-4. **Acceso**: `http://localhost/KPIs-RH/public/`
-
-## 📘 Manual de Usuario
-- **Búsqueda**: Escriba el nombre o número de empleado en la barra superior. Los gráficos y la tabla se filtrarán al instante.
-- **Perfil Rápido**: Al buscar un número de empleado exacto, se desplegará el feedback cualitativo.
-- **Reportes**: Use el botón "Exportar Reporte Final" para obtener la sábana oficial en formato `.xlsx`.
-
-## 🤝 Convención de Commits
-Utilizamos **Conventional Commits**: `feat:`, `fix:`, `docs:`, `style:`, `chore:`.
+1. **Requisitos**: PHP 8.x, MySQL (XAMPP), Firebase Project.
+2. **Firebase Config**: Actualice las credenciales en `form.php` y `search.js`.
+3. **Acceso**: `http://localhost/KPIs-RH/public/`
 
 ---
-*Desarrollado con ❤️ para la gestión de talento aeroportuario.*
+*Desarrollado con ❤️ para la gestión de talento aeroportuario de alto nivel.*

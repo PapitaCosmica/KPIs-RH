@@ -9,7 +9,7 @@ define('URL_ROOT', '/KPIs-RH/public/');
 define('APP_NAME', 'Dashboard Onboarding RH');
 
 // Versioning
-define('APP_VERSION', '1.1.0');
+define('APP_VERSION', '1.5.1');
 
 // Path constants
 define('MODELS_PATH', APP_ROOT . '/app/Models');
