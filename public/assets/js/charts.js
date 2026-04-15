@@ -217,19 +217,22 @@ window.updateCharts = function(data) {
 
     Object.keys(newDonutStats).forEach(key => {
         const spec = newDonutStats[key];
-        if (!spec.chart) {
-            console.warn(`Chart for ${key} not initialized`);
-            return;
-        }
+        if (!spec.chart) return;
+
+        // Filter valid data to ignore broken test records
+        const validData = data.filter(item => {
+            const ig = parseFloat(item.IGEO || 0);
+            return ig > 0;
+        });
 
         let avg = 0;
-        if (data.length > 0) {
-            const sum = data.reduce((acc, item) => {
+        if (validData.length > 0) {
+            const sum = validData.reduce((acc, item) => {
                 const s = item.scores || {};
                 const val = parseFloat(s[key] || 0);
                 return acc + val;
             }, 0);
-            avg = Math.round(sum / data.length);
+            avg = Math.round(sum / validData.length);
         }
 
         console.log(`Donut ${key} avg:`, avg); // Debug log

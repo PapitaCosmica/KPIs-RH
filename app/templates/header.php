@@ -16,13 +16,7 @@
         </nav>
     </div>
 
-    <div class="header-center">
-        <div class="spotlight-trigger" id="openSpotlight">
-            <span class="icon">🔍</span>
-            <span class="placeholder">Buscar colaborador, feedback...</span>
-            <span class="shortcut">⌘K</span>
-        </div>
-    </div>
+    <div class="header-center"></div>
 
     <div class="header-right">
         <button class="btn-share-tunnel" id="openShareModal">

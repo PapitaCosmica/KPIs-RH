@@ -1,6 +1,7 @@
 /**
- * Spotlight Search & KPI Engine - v1.6.2
- * Final Math Fix: 17-Question Mapping & Corrected Dimensions
+ * Spotlight Search & KPI Engine - v1.6.3
+ * Cleanup: Removed Spotlight Search system as requested.
+ * Final Math Fix: 17-Question Mapping & Corrected Dimensions.
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -19,9 +20,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const globalSpotlightInput = document.getElementById('globalSpotlightInput');
-    const spotlightResults = document.getElementById('spotlightResults');
-    const spotlightOverlay = document.getElementById('spotlightOverlay');
     const evaluationGrid = document.getElementById('evaluationGrid');
     
     // Modal Elements
@@ -31,54 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. DASHBOARD LOAD & DYNAMIC RENDERING
     const isCloud = !window.location.hostname.includes('localhost');
 
-    if (globalSpotlightInput) {
-        globalSpotlightInput.addEventListener('input', debounce(async () => {
-            const qStr = globalSpotlightInput.value.trim();
-            if (qStr.length < 2) {
-                spotlightResults.innerHTML = '';
-                return;
-            }
-            
-            let data = [];
-            if (isCloud) {
-                const querySnapshot = await getDocs(collection(db, "onboarding_evaluations"));
-                data = querySnapshot.docs.map(doc => doc.data()).filter(item => 
-                    (item.nombre && item.nombre.toLowerCase().includes(qStr.toLowerCase())) || 
-                    (item.num_empleado && item.num_empleado.includes(qStr))
-                );
-            } else {
-                try {
-                    const response = await fetch(`${window.APP_URL}?url=apiSearch&global=${encodeURIComponent(qStr)}`);
-                    const result = await response.json();
-                    data = result.data || [];
-                } catch(e) { console.warn("Local search failed."); }
-            }
-            renderSpotlightResults(data, qStr);
-        }, 300));
-    }
-
-    function renderSpotlightResults(data, qStr) {
-        spotlightResults.innerHTML = '';
-        if (data.length === 0) {
-            spotlightResults.innerHTML = '<p style="padding: 2rem; text-align:center; color:#999;">No hay coincidencias.</p>';
-            return;
-        }
-
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'spotlight-item';
-            div.innerHTML = `
-                <span class="item-icon">👤</span>
-                <div class="item-info">
-                    <span class="item-title">${item.nombre || 'Sin nombre'}</span>
-                    <span class="item-subtitle">${item.puesto || ''} | ${item.coordinacion || ''}</span>
-                </div>
-            `;
-            div.onclick = () => showEvaluationDetails(item);
-            spotlightResults.appendChild(div);
-        });
-    }
-
     // 2. DETAILED RESULTS LOGIC
     window.showEvaluationDetails = function(item) {
         const scores = calculateScoresJS(item);
@@ -86,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modalName').textContent = item.nombre || 'Colaborador';
         document.getElementById('modalSub').textContent = `${item.puesto || 'S/P'} | ${item.coordinacion || 'S/C'}`;
         
-        // Render Scores
         const scoresContainer = document.getElementById('modalScores');
         scoresContainer.innerHTML = '';
         
@@ -108,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scoresContainer.appendChild(div);
         });
 
-        // Feedback section
         const feedbackContainer = document.getElementById('modalFeedback');
         feedbackContainer.innerHTML = '';
         const feedbackLabels = {
@@ -134,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         detailsModal.style.display = 'flex';
-        if (spotlightOverlay) spotlightOverlay.style.display = 'none';
     };
 
     if (btnCloseModal) {
@@ -146,20 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let data = [];
             if (isCloud) {
-                console.log("Fetching from Cloud Firestore...");
                 const snapshot = await getDocs(query(collection(db, "onboarding_evaluations"), orderBy("created_at", "desc")));
                 data = snapshot.docs.map(doc => doc.data());
-
-                if (filters.coordinacion) data = data.filter(i => i.coordinacion === filters.coordinacion);
-                if (filters.global) {
-                    const g = filters.global.toLowerCase();
-                    data = data.filter(i => (i.nombre && i.nombre.toLowerCase().includes(g)) || (i.num_empleado && i.num_empleado.includes(g)));
-                }
-                
                 if (evaluationGrid) renderEvaluationCards(data);
             } else {
-                const params = new URLSearchParams(filters);
-                const response = await fetch(`${window.APP_URL}?url=apiSearch&${params.toString()}`);
+                const response = await fetch(`${window.APP_URL}?url=apiSearch`);
                 const result = await response.json();
                 data = result.data || [];
             }
@@ -207,10 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * FINAL CORRECTED CALCULATION - v1.6.2
-     * Mapping precisely matches the 17-question survey form
-     */
     function calculateScoresJS(source) {
         const dimensions = {
             'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
@@ -248,12 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.updateKPIStats = function(data) {
         if (!data || data.length === 0) return;
-        
-        // Filter out records where scores are completely zero (broken tests)
-        // This ensures the average is reflective only of real data
         const validData = data.filter(item => {
-            const sc = calculateScoresJS(item);
-            return sc.IGEO > 0;
+            const ig = parseFloat(item.IGEO || 0);
+            return ig > 0;
         });
         
         if (validData.length === 0) return;
@@ -274,14 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById(`val-${key}`);
             if (el) window.animateValue(el, parseInt(el.innerHTML) || 0, avg, 800);
         });
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
     }
 
     window.animateValue = function(obj, start, end, duration) {

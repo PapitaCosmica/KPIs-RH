@@ -37,17 +37,6 @@
         </div>
     </div>
 
-    <!-- Spotlight Search Overlay (Global) -->
-    <div id="spotlightOverlay" class="spotlight-overlay" style="display:none;">
-        <div class="spotlight-modal">
-            <div class="spotlight-header">
-                <span class="spotlight-icon">🔍</span>
-                <input type="text" id="globalSpotlightInput" placeholder="Spotlight: Busca colaboradores, feedback o temas..." autocomplete="off">
-                <span class="spotlight-esc">ESC</span>
-            </div>
-            <div id="spotlightResults" class="spotlight-results"></div>
-        </div>
-    </div>
 
     <!-- Detailed Results Modal (Neomorphic) -->
     <div id="detailsModal" class="modal-overlay" style="display:none;">

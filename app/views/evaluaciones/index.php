@@ -3,13 +3,6 @@
     <p>Gestiona y visualiza el progreso individual de cada colaborador.</p>
 </div>
 
-<!-- Simple List Filter -->
-<div class="search-controls" style="margin-bottom: 2rem;">
-    <div class="spotlight-search">
-        <input type="text" id="spotlightInput" placeholder="Filtrar por nombre o ID de empleado..." autofocus>
-    </div>
-</div>
-
 <div class="evaluation-grid-container">
     <div id="evaluationGrid" class="evaluation-grid">
         <?php if (empty($evaluaciones)): ?>
@@ -47,15 +40,6 @@
             <span>Nueva Evaluación</span>
         </a>
     </div>
-</div>
-
-<div class="view-actions" style="margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem;">
-    <button id="btnShareSurvey" class="btn-neo" style="background: var(--color-ice-blue); color: white;">
-        🔗 Compartir Encuesta
-    </button>
-    <a href="<?php echo URL_ROOT; ?>?url=export/download" class="btn-neo">
-        📥 Exportar Reporte Final
-    </a>
 </div>
 
 <style>
@@ -152,12 +136,3 @@
 .plus-icon { font-size: 3rem; color: var(--color-ice-blue); margin-bottom: 0.5rem; }
 .add-evaluation-card span { color: var(--color-ice-blue); font-weight: 600; }
 </style>
-
-<script>
-document.getElementById('btnShareSurvey').addEventListener('click', () => {
-    const surveyUrl = window.APP_URL + '?url=survey';
-    navigator.clipboard.writeText(surveyUrl).then(() => {
-        alert('Enlace de la encuesta copiado al portapapeles: ' + surveyUrl);
-    });
-});
-</script>
