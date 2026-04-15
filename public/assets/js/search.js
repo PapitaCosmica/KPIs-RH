@@ -95,9 +95,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isCloud) {
                 const snapshot = await getDocs(query(collection(db, "onboarding_evaluations"), orderBy("created_at", "desc")));
                 data = snapshot.docs.map(doc => doc.data());
+
+                // Apply filters client-side
+                if (filters.global && filters.global.length > 0) {
+                    const q = filters.global.toLowerCase();
+                    data = data.filter(item =>
+                        (item.nombre && item.nombre.toLowerCase().includes(q)) ||
+                        (item.num_empleado && item.num_empleado.includes(q)) ||
+                        (item.puesto && item.puesto.toLowerCase().includes(q))
+                    );
+                }
+                if (filters.coordinacion) {
+                    data = data.filter(item => item.coordinacion === filters.coordinacion);
+                }
+                if (filters.date_start) {
+                    data = data.filter(item => item.fecha_ingreso && item.fecha_ingreso >= filters.date_start);
+                }
+                if (filters.date_end) {
+                    data = data.filter(item => item.fecha_ingreso && item.fecha_ingreso <= filters.date_end);
+                }
+
                 if (evaluationGrid) renderEvaluationCards(data);
             } else {
-                const response = await fetch(`${window.APP_URL}?url=apiSearch`);
+                const params = new URLSearchParams(filters);
+                const response = await fetch(`${window.APP_URL}?url=apiSearch&${params.toString()}`);
                 const result = await response.json();
                 data = result.data || [];
             }

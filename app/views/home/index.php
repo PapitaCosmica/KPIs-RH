@@ -37,7 +37,13 @@
     <div class="dashboard-controls glass-container">
         <div class="filter-group main-search">
             <span class="filter-icon">🔍</span>
-            <input type="text" id="filter-search" placeholder="Filtrar por nombre o empleado..." autocomplete="off">
+            <input type="text" id="filter-search" placeholder="Buscar por nombre o # empleado..." autocomplete="off">
+            <button id="btn-search" class="btn-search" title="Buscar">
+                Buscar
+            </button>
+            <div id="search-spinner" class="search-spinner" style="display:none;">
+                <div class="spinner-ring"></div>
+            </div>
         </div>
         
         <div class="filter-divider"></div>
@@ -138,6 +144,47 @@
     .btn-icon-only:hover {
         background: var(--color-ice-blue);
         transform: rotate(180deg);
+    }
+    .main-search {
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-search {
+        padding: 0.5rem 1.2rem;
+        background: var(--color-ice-blue);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-family: inherit;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
+    .btn-search:hover {
+        background: var(--color-night);
+        transform: scale(1.03);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-search:active {
+        transform: scale(0.97);
+    }
+    .search-spinner {
+        display: flex;
+        align-items: center;
+    }
+    .spinner-ring {
+        width: 22px;
+        height: 22px;
+        border: 3px solid rgba(129, 161, 193, 0.2);
+        border-top-color: var(--color-ice-blue);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
     @media (max-width: 1024px) {
         .dashboard-controls {
