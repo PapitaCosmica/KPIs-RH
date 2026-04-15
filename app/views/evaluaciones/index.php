@@ -17,11 +17,13 @@
         <label>Coordinación</label>
         <select id="results-coordinacion">
             <option value="">Todas las áreas</option>
-            <option value="ADMINISTRACION AEROPORTUARIA">Admón. Aeroportuaria</option>
-            <option value="COORDINACION ADMINISTRATIVA">Coordinación Administrativa</option>
-            <option value="COORDINACION JURIDICA">Coordinación Jurídica</option>
-            <option value="DIRECCION GENERAL">Dirección General</option>
-            <option value="OPERACIONES">Operaciones</option>
+            <option value="ADMINISTRACION AEROPORTUARIA">ADMINISTRACION AEROPORTUARIA</option>
+            <option value="COORDINACION ADMINISTRATIVA">COORDINACION ADMINISTRATIVA</option>
+            <option value="COORDINACION DE PLANEACIÓN ESTRATÉGICA">COORDINACION DE PLANEACIÓN ESTRATÉGICA</option>
+            <option value="COORDINACION JURIDICA">COORDINACION JURIDICA</option>
+            <option value="DIRECCION GENERAL">DIRECCION GENERAL</option>
+            <option value="DIRECCION COMERCIAL">DIRECCION COMERCIAL</option>
+            <option value="ORGANO INTERNO DE CONTROL">ORGANO INTERNO DE CONTROL</option>
         </select>
     </div>
 
