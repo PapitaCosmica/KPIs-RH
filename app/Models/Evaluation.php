@@ -104,6 +104,8 @@ class Evaluation {
         }
 
         if ($this->exists($data['num_empleado'])) {
+            throw new Exception("El colaborador con ID {$data['num_empleado']} ya ha completado su evaluación.");
+        }
 
         $fields = array_keys($data);
         $placeholders = array_map(function($f) { return ":$f"; }, $fields);
