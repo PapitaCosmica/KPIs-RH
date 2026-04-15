@@ -13,7 +13,7 @@
 <div class="evaluation-grid-container">
     <div id="evaluationGrid" class="evaluation-grid">
         <?php if (empty($evaluaciones)): ?>
-            <div class="empty-state glass-card" style="grid-column: 1/-1; padding: 3rem; text-align: center;">
+            <div id="emptyStatePlaceholder" class="empty-state glass-card" style="grid-column: 1/-1; padding: 3rem; text-align: center;">
                 <p>Aún no hay evaluaciones registradas. ¡Crea la primera!</p>
             </div>
         <?php else: ?>

@@ -1,6 +1,6 @@
 /**
- * Spotlight Search & KPI Engine - v1.5.0
- * Global Search & Cloud-to-Local Data Switching
+ * Spotlight Search & KPI Engine - v1.6.0
+ * Cloud-to-Local Data Switching & Detailed Results Modal
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -22,6 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalSpotlightInput = document.getElementById('globalSpotlightInput');
     const spotlightResults = document.getElementById('spotlightResults');
     const spotlightOverlay = document.getElementById('spotlightOverlay');
+    const evaluationGrid = document.getElementById('evaluationGrid');
+    
+    // Modal Elements
+    const detailsModal = document.getElementById('detailsModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+
+    // 1. DASHBOARD LOAD & DYNAMIC RENDERING
+    const isCloud = !window.location.hostname.includes('localhost');
 
     if (globalSpotlightInput) {
         globalSpotlightInput.addEventListener('input', debounce(async () => {
@@ -31,9 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            const isCloud = !window.location.hostname.includes('localhost');
             let data = [];
-
             if (isCloud) {
                 const querySnapshot = await getDocs(collection(db, "onboarding_evaluations"));
                 data = querySnapshot.docs.map(doc => doc.data()).filter(item => 
@@ -45,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const response = await fetch(`${window.APP_URL}?url=apiSearch&global=${encodeURIComponent(qStr)}`);
                     const result = await response.json();
                     data = result.data || [];
-                } catch(e) { console.warn("Local search failed, falling back to empty."); }
+                } catch(e) { console.warn("Local search failed."); }
             }
             renderSpotlightResults(data, qStr);
         }, 300));
@@ -54,35 +60,88 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSpotlightResults(data, qStr) {
         spotlightResults.innerHTML = '';
         if (data.length === 0) {
-            spotlightResults.innerHTML = '<p style="padding: 2rem; text-align:center; color:#999;">No hay coincidencias en el sistema.</p>';
+            spotlightResults.innerHTML = '<p style="padding: 2rem; text-align:center; color:#999;">No hay coincidencias.</p>';
             return;
         }
 
         data.forEach(item => {
-            let category = 'Colaborador';
-            let icon = '👤';
-            let subtitle = `${item.puesto || ''} | ${item.coordinacion || ''}`;
-
             const div = document.createElement('div');
             div.className = 'spotlight-item';
             div.innerHTML = `
-                <span class="item-icon">${icon}</span>
+                <span class="item-icon">👤</span>
                 <div class="item-info">
                     <span class="item-title">${item.nombre || 'Sin nombre'}</span>
-                    <span class="item-subtitle">${subtitle}</span>
+                    <span class="item-subtitle">${item.puesto || ''} | ${item.coordinacion || ''}</span>
                 </div>
             `;
-            
-            div.onclick = () => {
-                window.location.href = `${window.APP_URL}?url=evaluaciones&highlight=${item.num_empleado}`;
-            };
+            div.onclick = () => showEvaluationDetails(item);
             spotlightResults.appendChild(div);
         });
     }
 
-    // DASHBOARD KPI UPDATE
+    // 2. DETAILED RESULTS LOGIC
+    window.showEvaluationDetails = function(item) {
+        const scores = calculateScoresJS(item);
+        
+        document.getElementById('modalName').textContent = item.nombre;
+        document.getElementById('modalSub').textContent = `${item.puesto} | ${item.coordinacion}`;
+        
+        // Render Scores
+        const scoresContainer = document.getElementById('modalScores');
+        scoresContainer.innerHTML = '';
+        
+        const displayDimensions = [
+            { label: 'IGEO Global', val: scores.IGEO, icon: '📈' },
+            { label: 'Claridad Puesto', val: scores.Claridad_Puesto, icon: '🔍' },
+            { label: 'Integración', val: scores.Integracion_Equipo, icon: '🎭' },
+            { label: 'Comprensión Org', val: scores.Comprension_Org, icon: 'PURPLE' },
+            { label: 'Efectividad', val: scores.Efectividad_Onb, icon: '⭐' }
+        ];
+
+        displayDimensions.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'score-item';
+            div.innerHTML = `
+                <span class="score-val">${d.val}%</span>
+                <span class="score-label">${d.label}</span>
+            `;
+            scoresContainer.appendChild(div);
+        });
+
+        // Render Feedback
+        const feedbackContainer = document.getElementById('modalFeedback');
+        feedbackContainer.innerHTML = '';
+        const feedbackLabels = {
+            'f_logros': 'Logros obtenidos',
+            'f_utilidad_capacitaciones': 'Utilidad de capacitaciones',
+            'f_faltantes_actividades': 'Faltantes detectados',
+            'f_mejoras_proceso': 'Sugerencias de mejora',
+            'f_comentarios_libres': 'Comentarios adicionales'
+        };
+
+        Object.keys(feedbackLabels).forEach(key => {
+            if (item[key]) {
+                const div = document.createElement('div');
+                div.className = 'feedback-item';
+                div.innerHTML = `
+                    <span class="fb-label">${feedbackLabels[key]}</span>
+                    <p class="fb-text">${item[key]}</p>
+                `;
+                feedbackContainer.appendChild(div);
+            }
+        });
+
+        detailsModal.style.display = 'flex';
+        // Close spotlight if open
+        if (spotlightOverlay) spotlightOverlay.style.display = 'none';
+    };
+
+    if (btnCloseModal) {
+        btnCloseModal.onclick = () => detailsModal.style.display = 'none';
+    }
+
+    // 3. CLOUD LIST RENDERING
     window.loadDashboardKPIs = async function(filters = {}) {
-        const isCloud = !window.location.hostname.includes('localhost');
         try {
             let data = [];
             if (isCloud) {
@@ -90,14 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const snapshot = await getDocs(query(collection(db, "onboarding_evaluations"), orderBy("created_at", "desc")));
                 data = snapshot.docs.map(doc => doc.data());
 
-                // Apply filters in JS for Cloud mode
                 if (filters.coordinacion) data = data.filter(i => i.coordinacion === filters.coordinacion);
                 if (filters.global) {
                     const g = filters.global.toLowerCase();
                     data = data.filter(i => (i.nombre && i.nombre.toLowerCase().includes(g)) || (i.num_empleado && i.num_empleado.includes(g)));
                 }
-                if (filters.date_start) data = data.filter(i => i.fecha_ingreso >= filters.date_start);
-                if (filters.date_end) data = data.filter(i => i.fecha_ingreso <= filters.date_end);
+                
+                // On Cloud, we must render the grid cards manually
+                if (evaluationGrid) renderEvaluationCards(data);
             } else {
                 const params = new URLSearchParams(filters);
                 const response = await fetch(`${window.APP_URL}?url=apiSearch&${params.toString()}`);
@@ -108,28 +167,96 @@ document.addEventListener('DOMContentLoaded', () => {
             window.updateKPIStats(data);
             if (window.updateCharts) window.updateCharts(data);
         } catch (err) {
-            console.error('KPI Update Error:', err);
+            console.error('Data Sync Error:', err);
         }
     }
 
-    window.updateKPIStats = function(data) {
-        if (!data || data.length === 0) {
-            ['igeo', 'claridad', 'cultura', 'liderazgo', 'operaciones', 'satisfaccion'].forEach(key => {
-                const el = document.getElementById(`val-${key}`);
-                if (el) el.innerHTML = "0%";
-            });
-            return;
+    function renderEvaluationCards(data) {
+        const placeholder = document.getElementById('emptyStatePlaceholder');
+        if (placeholder) placeholder.remove();
+
+        // Keep the "+" card
+        const plusCard = evaluationGrid.querySelector('.add-evaluation-card');
+        
+        // Clear previous dynamic cards
+        const existingCards = evaluationGrid.querySelectorAll('.evaluation-card');
+        existingCards.forEach(c => c.remove());
+
+        data.forEach(item => {
+            const scores = calculateScoresJS(item);
+            const igeo = scores.IGEO;
+            const color = igeo >= 80 ? '#4CAF50' : (igeo >= 60 ? '#FFC107' : '#F44336');
+            
+            const card = document.createElement('div');
+            card.className = 'evaluation-card glass-card ripple';
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="coordination-tag">${item.coordinacion}</span>
+                    <div class="igeo-badge" style="background: ${color}22; color: ${color};">
+                        ${igeo}%
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3>${item.nombre}</h3>
+                    <p class="puesto-text">${item.puesto}</p>
+                    <p class="date-text">📅 ${item.fecha_ingreso}</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn-text">Ver Detalles →</button>
+                </div>
+            `;
+            card.onclick = () => showEvaluationDetails(item);
+            evaluationGrid.insertBefore(card, plusCard);
+        });
+    }
+
+    // Helper: Logic mirrored from Evaluation Model
+    function calculateScoresJS(source) {
+        const metrics = [
+            'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
+            'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 
+            'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 
+            'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
+            'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
+            'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados',
+            'f_tiempo_onboarding', 'f_satisfaccion_decision'
+        ];
+        
+        const dimensions = {
+            'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
+            'Integracion_Equipo': ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
+            'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
+            'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'f_tiempo_onboarding', 'f_satisfaccion_decision']
+        };
+
+        const results = {};
+        for (const [name, fields] of Object.entries(dimensions)) {
+            let sum = 0;
+            fields.forEach(f => sum += parseInt(source[f] || 0));
+            results[name] = Math.round((sum / (fields.length * 10)) * 100);
         }
+
+        let globalSum = 0;
+        metrics.forEach(m => globalSum += parseInt(source[m] || 0));
+        results['IGEO'] = Math.round((globalSum / (metrics.length * 10)) * 100);
+
+        return results;
+    }
+
+    window.updateKPIStats = function(data) {
+        if (!data || data.length === 0) return;
         const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, operaciones: 0, satisfaccion: 0 };
         data.forEach(item => {
-            const s = item.scores || {};
-            totals.igeo += parseFloat(item.IGEO || 0);
-            totals.claridad += parseFloat(s['Claridad'] || 0);
-            totals.cultura += parseFloat(s['Cultura'] || 0);
-            totals.liderazgo += parseFloat(s['Liderazgo'] || 0);
-            totals.operaciones += parseFloat(s['Operaciones'] || 0);
-            totals.satisfaccion += parseFloat(s['Satisfacción'] || 0);
+            const scores = calculateScoresJS(item);
+            totals.igeo += scores.IGEO;
+            // Map to the dashboard grid labels
+            totals.claridad += scores.Claridad_Puesto;
+            totals.cultura += scores.Integracion_Equipo;
+            totals.liderazgo += scores.Integracion_Equipo; // Liderazgo is part of integration in this version
+            totals.operaciones += scores.Comprension_Org;
+            totals.satisfaccion += scores.Efectividad_Onb;
         });
+        
         Object.keys(totals).forEach(key => {
             const avg = Math.round(totals[key] / data.length);
             const el = document.getElementById(`val-${key}`);
@@ -156,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.requestAnimationFrame(step);
     }
 
-    if (document.getElementById('val-igeo')) {
+    if (document.getElementById('val-igeo') || evaluationGrid) {
         window.loadDashboardKPIs();
     }
 });
