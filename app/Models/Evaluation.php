@@ -63,33 +63,38 @@ class Evaluation {
             'Operaciones' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_organizacion_induccion'],
             'Satisfacción' => ['m_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo', 'm_efectividad_onboarding', 'm_preparacion_capacitacion'],
             
-            // New Dashboard Metrics (Surveys)
+            // Survey Dimensions (Cloud/Export)
             'Claridad_Puesto' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
             'Integracion_Equipo' => ['m_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
             'Comprension_Org' => ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-            'Efectividad_Onb' => ['m_efectividad_onboarding', 'm_contribucion_resultados', 'f_tiempo_onboarding', 'f_satisfaccion_decision']
+            'Efectividad_Onb' => ['m_efectividad_onboarding', 'm_contribucion_resultados']
         ];
 
         $results = [];
-        $totalSum = 0;
-        $totalCount = 19; // Base IGEO is still on the main 19
-
         foreach ($dimensions as $name => $fields) {
             $sum = 0;
             foreach ($fields as $field) {
-                $val = isset($source[$field]) ? (int)$source[$field] : 0;
-                $sum += $val;
+                $sum += isset($source[$field]) ? (int)$source[$field] : 0;
             }
             $avg = (count($fields) > 0) ? ($sum / (count($fields) * 10)) * 100 : 0;
-            $results[$name] = round($avg, 2);
+            $results[$name] = round($avg, 0);
         }
 
-        // Global IGEO Calculation
+        // Global IGEO Calculation (Numeric Only)
+        $numericMetrics = [
+            'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
+            'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
+            'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
+            'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
+            'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
+            'm_paquete_beneficios', 'm_percepcion_imagen'
+        ];
+
         $globalSum = 0;
-        foreach ($this->metrics as $metric) {
+        foreach ($numericMetrics as $metric) {
             $globalSum += isset($source[$metric]) ? (int)$source[$metric] : 0;
         }
-        $results['IGEO'] = round(($globalSum / (count($this->metrics) * 10)) * 100, 2);
+        $results['IGEO'] = round(($globalSum / (count($numericMetrics) * 10)) * 100, 0);
 
         return $results;
     }
