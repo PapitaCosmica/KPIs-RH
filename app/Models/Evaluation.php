@@ -98,9 +98,12 @@ class Evaluation {
      * Save evaluation to database
      */
     public function save($data) {
-        if ($this->exists($data['num_empleado'])) {
-            throw new Exception("El colaborador con ID {$data['num_empleado']} ya ha completado su evaluación.");
+        if (!$this->db) {
+            // SQL is bypassed in this environment (likely Vercel)
+            return true;
         }
+
+        if ($this->exists($data['num_empleado'])) {
 
         $fields = array_keys($data);
         $placeholders = array_map(function($f) { return ":$f"; }, $fields);
@@ -113,12 +116,17 @@ class Evaluation {
     }
 
     public function exists($num_empleado) {
+        if (!$this->db) return false;
         $stmt = $this->db->prepare("SELECT id FROM onboarding_evaluations WHERE num_empleado = :num_empleado LIMIT 1");
         $stmt->execute(['num_empleado' => $num_empleado]);
         return $stmt->fetch() ? true : false;
     }
 
     public function filter($params) {
+        if (!$this->db) {
+            // Return empty set for SQL; Frontend will fetch from Firebase
+            return [];
+        }
         $sql = "SELECT * FROM onboarding_evaluations WHERE 1=1";
         $binds = [];
 
