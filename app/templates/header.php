@@ -6,8 +6,11 @@
                 <li class="<?php echo ($url ?? '') == 'home' ? 'active' : ''; ?>">
                     <a href="<?php echo URL_ROOT; ?>?url=home">Inicio</a>
                 </li>
-                <li class="<?php echo ($url ?? '') == 'evaluaciones' ? 'active' : ''; ?>">
-                    <a href="<?php echo URL_ROOT; ?>?url=evaluaciones">Evaluaciones</a>
+                <li class="<?php echo ($url ?? '') == 'survey' ? 'active' : ''; ?>">
+                    <a href="<?php echo URL_ROOT; ?>?url=survey">Evaluaciones</a>
+                </li>
+                <li class="<?php echo ($url ?? '') == 'resultados' ? 'active' : ''; ?>">
+                    <a href="<?php echo URL_ROOT; ?>?url=resultados">Resultados</a>
                 </li>
                 <li>
                     <a href="<?php echo URL_ROOT; ?>?url=export/download">Reportes</a>
