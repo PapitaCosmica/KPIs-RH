@@ -1,6 +1,6 @@
 <header class="top-header">
     <div class="header-left">
-        <div class="logo-text">KPIs-RH</div>
+        <div class="logo-text">KPIs-RH <span id="app-status-indicator" class="status-indicator loading" title="Conectando..."></span></div>
         <nav class="top-nav">
             <ul>
                 <li class="<?php echo ($url ?? '') == 'home' ? 'active' : ''; ?>">
@@ -188,6 +188,22 @@
 </style>
 
 <script>
+// App Status Indicator Logic
+const statusDot = document.getElementById('app-status-indicator');
+if(statusDot) {
+    window.addEventListener('load', () => {
+        // Just a slight delay so the user sees the 'loading' state briefly
+        setTimeout(() => {
+            statusDot.className = 'status-indicator ready';
+            statusDot.title = 'Conectado y Listo';
+        }, 600);
+    });
+    window.addEventListener('error', () => {
+        statusDot.className = 'status-indicator error';
+        statusDot.title = 'Error detectado';
+    });
+}
+
 // Spotlight Toggle Logic
 const spotlightTabTrigger = document.getElementById('openSpotlight');
 const spotlightOverlay = document.getElementById('spotlightOverlay');
