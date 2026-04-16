@@ -226,28 +226,48 @@ if (btnCreateTunnel) {
         btnCreateTunnel.innerHTML = "Generando...";
 
         try {
-            const formData = new FormData();
-            formData.append('max_responses', responses);
-            formData.append('hours', hours);
-
-            const response = await fetch(`${window.APP_URL}?url=survey/create-tunnel`, {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                document.getElementById('tunnelUrlInput').value = result.url;
-                document.getElementById('generatedLinkContainer').style.display = 'block';
-                btnCreateTunnel.innerHTML = "¡Enlace generado!";
+            // Import Firebase modules dynamically
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+            const { getFirestore, collection, addDoc, Timestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            
+            const firebaseConfig = {
+                apiKey: "AIzaSyBVRsb03EbnY3IKRAbc-3s5jTjM5X3kGxM",
+                authDomain: "kpi-rh-c667e.firebaseapp.com",
+                projectId: "kpi-rh-c667e",
+                storageBucket: "kpi-rh-c667e.firebasestorage.app",
+                messagingSenderId: "59652617692",
+                appId: "1:59652617692:web:789034aa88c4ef1a4f0b19"
+            };
+            
+            const app = initializeApp(firebaseConfig, 'tunnel-app');
+            const db = getFirestore(app);
+            
+            // Calculate expiration
+            const maxResp = parseInt(responses);
+            let expiresAt;
+            if (maxResp < 1000) {
+                expiresAt = Timestamp.fromDate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)); // 1 year
             } else {
-                alert('Error: ' + result.message);
-                btnCreateTunnel.innerHTML = "Generar Enlace";
-                btnCreateTunnel.disabled = false;
+                expiresAt = Timestamp.fromDate(new Date(Date.now() + parseInt(hours) * 60 * 60 * 1000));
             }
+            
+            // Create tunnel document in Firestore
+            const docRef = await addDoc(collection(db, 'tunnels'), {
+                max_responses: maxResp,
+                current_responses: 0,
+                expires_at: expiresAt,
+                created_at: Timestamp.now()
+            });
+            
+            const baseUrl = window.location.origin;
+            const url = `${baseUrl}/?url=survey/tunnel&token=${docRef.id}`;
+            
+            document.getElementById('tunnelUrlInput').value = url;
+            document.getElementById('generatedLinkContainer').style.display = 'block';
+            btnCreateTunnel.innerHTML = "¡Enlace generado!";
         } catch (err) {
-            console.error(err);
-            alert('Error de conexión.');
+            console.error('Tunnel creation error:', err);
+            alert('Error al generar el enlace.');
             btnCreateTunnel.innerHTML = "Generar Enlace";
             btnCreateTunnel.disabled = false;
         }
@@ -269,17 +289,17 @@ if (copyBtn) {
 document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        spotlightOverlay.style.display = 'flex';
-        spotlightInput.focus();
+        if (spotlightOverlay) spotlightOverlay.style.display = 'flex';
+        if (spotlightInput) spotlightInput.focus();
     }
     if (e.key === 'Escape') {
-        spotlightOverlay.style.display = 'none';
-        shareModal.style.display = 'none';
+        if (spotlightOverlay) spotlightOverlay.style.display = 'none';
+        if (shareModal) shareModal.style.display = 'none';
     }
 });
 
 // Close when clicking outside modal
-[spotlightOverlay, shareModal].forEach(modal => {
+[spotlightOverlay, shareModal].filter(Boolean).forEach(modal => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.style.display = 'none';

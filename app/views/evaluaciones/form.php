@@ -448,7 +448,7 @@
 <!-- Firebase SDK Integration -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBVRsb03EbnY3IKRAbc-3s5jTjM5X3kGxM",
@@ -461,6 +461,38 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Tunnel validation (if accessed via tunnel link)
+const tunnelToken = '<?php echo isset($tunnelToken) ? $tunnelToken : ""; ?>';
+if (tunnelToken) {
+    (async () => {
+        try {
+            const tunnelRef = doc(db, 'tunnels', tunnelToken);
+            const tunnelSnap = await getDoc(tunnelRef);
+            
+            if (!tunnelSnap.exists()) {
+                document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:sans-serif;"><h2>⚠️ Enlace inválido</h2><p>Este enlace de evaluación no existe.</p></div>';
+                return;
+            }
+            
+            const data = tunnelSnap.data();
+            const now = new Date();
+            const expiresAt = data.expires_at?.toDate ? data.expires_at.toDate() : new Date(data.expires_at);
+            
+            if (now > expiresAt) {
+                document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:sans-serif;"><h2>⏰ Enlace expirado</h2><p>Este enlace temporal ha expirado.</p></div>';
+                return;
+            }
+            
+            if (data.current_responses >= data.max_responses) {
+                document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:sans-serif;"><h2>📊 Límite alcanzado</h2><p>Este enlace ha alcanzado su límite de respuestas.</p></div>';
+                return;
+            }
+        } catch (err) {
+            console.error('Tunnel validation error:', err);
+        }
+    })();
+}
 
 document.getElementById('fullSurveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -497,7 +529,17 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
         });
         console.log("Firebase Sync: OK");
 
-        // 2. DUAL-WRITE: Step B -> Local SQL (for Backup)
+        // 2. Increment tunnel usage if accessed via tunnel
+        if (tunnelToken) {
+            try {
+                const tunnelRef = doc(db, 'tunnels', tunnelToken);
+                await updateDoc(tunnelRef, { current_responses: increment(1) });
+            } catch (tunnelErr) {
+                console.warn('Tunnel increment failed:', tunnelErr);
+            }
+        }
+
+        // 3. DUAL-WRITE: Step B -> Local SQL (for Backup)
         formData.append('is_ajax', 'true');
         const response = await fetch('<?php echo URL_ROOT; ?>?url=survey/store', {
             method: 'POST',

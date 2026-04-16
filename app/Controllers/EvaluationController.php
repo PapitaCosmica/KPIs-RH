@@ -127,45 +127,20 @@ class EvaluationController {
     }
 
     /**
-     * View the survey via a tunnel
+     * View the survey via a tunnel (validation done client-side via Firestore)
      */
     public function viewTunnel() {
         $token = $_GET['token'] ?? '';
-        $tunnelModel = new Tunnel();
-        $tunnel = $tunnelModel->validate($token);
-
-        if (!$tunnel) {
-            die("Este túnel temporal ha expirado o ha alcanzado su límite de respuestas.");
+        
+        if (empty($token)) {
+            die("Token inválido.");
         }
 
-        // Setup variables for the view
+        // Setup variables for the view - validation happens in JS
         $isIsolated = true; // No header/sidebar
         $viewPath = VIEWS_PATH . '/evaluaciones/form.php';
-        $tunnelToken = $token; // Pass to the view to include in the form
+        $tunnelToken = $token; // Pass to the view for client-side validation
         
         include TEMPLATES_PATH . '/layout.php';
-    }
-
-    /**
-     * API to update the global public base URL
-     */
-    public function updateTunnelBase() {
-        header('Content-Type: application/json');
-        try {
-            $newBase = $_POST['base_url'] ?? '';
-            if (empty($newBase)) throw new Exception("URL base vacía.");
-
-            $configPath = dirname(dirname(__DIR__)) . '/config/tunnel_config.php';
-            $content = "<?php\n\nreturn [\n    'public_base_url' => '$newBase'\n];";
-            
-            if (file_put_contents($configPath, $content)) {
-                echo json_encode(['status' => 'success', 'message' => 'URL base actualizada.']);
-            } else {
-                throw new Exception("Error al escribir archivo de configuración.");
-            }
-        } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-        }
-        exit;
     }
 }
