@@ -110,13 +110,12 @@ class EvaluationController {
             $token = $tunnelModel->create($maxResponses, $hours);
 
             if ($token) {
-                // Load current public base URL from config
-                $configPath = dirname(dirname(__DIR__)) . '/config/tunnel_config.php';
-                $config = file_exists($configPath) ? include($configPath) : ['public_base_url' => URL_ROOT];
-                $baseUrl = rtrim($config['public_base_url'], '/');
+                // Build URL from current request context
+                $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $baseUrl = $protocol . '://' . $host . rtrim(URL_ROOT, '/');
                 
-                // Use URL_ROOT to ensure subfolders like /KPIs-RH/public/ are included
-                $url = $baseUrl . URL_ROOT . "?url=survey/tunnel&token=" . $token;
+                $url = $baseUrl . "?url=survey/tunnel&token=" . $token;
                 echo json_encode(['status' => 'success', 'url' => $url]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Error al crear el túnel.']);
