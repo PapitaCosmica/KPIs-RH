@@ -30,6 +30,9 @@
             <span class="user-role">Admin</span>
             <div class="avatar-circle">RH</div>
         </div>
+        <a href="<?php echo URL_ROOT; ?>?url=logout" class="btn-logout" title="Cerrar Sesión">
+            <span class="icon">🔒</span>
+        </a>
     </div>
 </header>
 
@@ -97,6 +100,25 @@
 }
 .btn-share-tunnel:hover {
     background: var(--color-ice-blue);
+    color: white;
+}
+.btn-logout {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.btn-logout:hover {
+    background: #dc3545;
     color: white;
 }
 .share-modal {
