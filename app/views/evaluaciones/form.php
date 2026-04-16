@@ -570,43 +570,29 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
 /**
  * Replicates PHP calculateScores logic in JS for Firestore metadata
  */
-/**
- * Replicates PHP calculateScores logic in JS for Firestore metadata - v1.6.1
- */
-/**
- * Replicates PHP calculateScores logic in JS for Firestore metadata - v1.6.2
- */
 function calculateScoresJS(source) {
     const dimensions = {
-        'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
-        'Integracion_Equipo': ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
-        'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-        'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
+        'Efectividad_Onb': ['m_preparacion_capacitacion', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen', 'm_satisfaccion_decision'],
+        'Integracion_Equipo': ['m_contribucion_resultados', 'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
+        'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion', 'm_efectividad_onboarding'],
+        'Comprension_Org': ['m_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion', 'm_herramientas_trabajo', 'm_espacio_fisico']
     };
 
     const results = {};
+    const dimValues = [];
     Object.keys(dimensions).forEach(name => {
         let sum = 0;
         dimensions[name].forEach(field => {
             sum += parseInt(source[field]) || 0;
         });
-        results[name] = Math.round((sum / (dimensions[name].length * 10)) * 100);
+        const dimAvg = (sum / (dimensions[name].length * 10)) * 100;
+        results[name] = Math.round(dimAvg);
+        dimValues.push(dimAvg);
     });
 
-    const metricsList = [
-        'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
-        'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
-        'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
-        'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
-        'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
-        'm_paquete_beneficios', 'm_percepcion_imagen'
-    ];
-
-    let globalSum = 0;
-    metricsList.forEach(m => {
-        globalSum += parseInt(source[m]) || 0;
-    });
-    results['IGEO'] = Math.round((globalSum / (metricsList.length * 10)) * 100);
+    // IGEO in Excel is the average of the 4 dimension scores
+    const globalAvg = dimValues.reduce((a, b) => a + b, 0) / dimValues.length;
+    results['IGEO'] = Math.round(globalAvg);
 
     return results;
 }

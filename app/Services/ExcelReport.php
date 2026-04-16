@@ -49,21 +49,25 @@ class ExcelReport {
             // Calculate IGEO on the fly or use pre-calculated (assuming model logic)
             // For this version, let's assume we pass the raw data and calculate here for visualization
             // Calculate IGEO using the current 19 metrics
-            $totalSum = 0;
-            $count = 19;
-            $metrics = [
-                'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
-                'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 
-                'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 
-                'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
-                'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
-                'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados'
+            // Dimension groupings from Excel source of truth
+            $dims = [
+                'efectividad' => ['m_preparacion_capacitacion', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen', 'm_satisfaccion_decision'],
+                'integracion' => ['m_contribucion_resultados', 'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
+                'claridad' => ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion', 'm_efectividad_onboarding'],
+                'comprension' => ['m_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion', 'm_herramientas_trabajo', 'm_espacio_fisico']
             ];
-            
-            foreach ($metrics as $m) {
-                $totalSum += (int)($evaluation[$m] ?? 0);
+
+            $dimScores = [];
+            foreach ($dims as $name => $fields) {
+                $sum = 0;
+                foreach ($fields as $f) {
+                    $sum += (int)($evaluation[$f] ?? 0);
+                }
+                $dimScores[$name] = ($sum / (count($fields) * 10)) * 100;
             }
-            $igeo = round(($totalSum / ($count * 10)) * 100, 2);
+
+            // IGEO in Excel is the average of the 4 dimension scores
+            $igeo = round(array_sum($dimScores) / count($dimScores), 2);
 
             $sheet->setCellValue('A' . $row, $evaluation['id']);
             $sheet->setCellValue('B' . $row, $evaluation['num_empleado']);
