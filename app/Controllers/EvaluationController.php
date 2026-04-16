@@ -43,7 +43,7 @@ class EvaluationController {
                 'm_organizacion_induccion', 'm_claridad_procedimientos', 'm_herramientas_trabajo', 
                 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_proceso_administrativo',
                 'm_percepcion_imagen', 'm_efectividad_onboarding', 'm_contribucion_resultados',
-                'f_tiempo_onboarding', 'f_satisfaccion_decision'
+                'm_satisfaccion_decision'
             ];
             foreach ($metricsList as $m) {
                 $val = (int)($postData[$m] ?? 0);
@@ -53,7 +53,7 @@ class EvaluationController {
             // 3. Feedback (Qualitative)
             $feedbackFields = [
                 'f_logros', 'f_utilidad_capacitaciones', 'f_faltantes_actividades', 
-                'f_mejoras_proceso', 'f_comentarios_libres'
+                'f_tiempo_onboarding', 'f_mejoras_proceso', 'f_comentarios_libres'
             ];
             foreach ($feedbackFields as $f) {
                 $sanitizedData[$f] = filter_var($postData[$f] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);

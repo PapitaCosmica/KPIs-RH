@@ -56,33 +56,19 @@
             </div>
         </div>
 
-        <!-- Section 2: Métricas Cuantitativas -->
+        <!-- Section 2: Evaluación Cuantitativa -->
         <div class="form-section glass-card">
             <h3>2. Evaluación de Adaptación (Escala 1 al 10)</h3>
-            <p class="section-desc">Donde 1 es "Muy Insatisfecho" y 10 es "Excelente Experiencia".</p>
+            <p class="section-desc">Donde 1 es "Muy en desacuerdo" y 10 es "Totalmente de acuerdo".</p>
             
             <div class="metrics-list">
                 <?php 
-                $questions = [
-                    'm_claridad_expectativas' => '1. ¿Qué tan claro tienes lo que se espera de ti en tu puesto?',
-                    'm_seguridad_responsabilidades' => '2. ¿Qué tan seguro(a) te sientes al ejecutar tus responsabilidades?',
-                    'm_preparacion_capacitacion' => '3. ¿La capacitación recibida te preparó para los retos del puesto?',
-                    'm_efectividad_onboarding' => '4. ¿Qué tan preparado te sientes para realizar tus actividades de manera independiente?',
-                    'm_contribucion_resultados' => '5. ¿Qué tan bien comprendes cómo tu trabajo contribuye a los resultados?',
-                    'm_integracion_equipo' => '6. ¿Qué tan integrado(a) te sientes en tu equipo de trabajo?',
-                    'm_experiencia_colaboracion' => '7. ¿Qué tan positiva ha sido tu experiencia de colaboración?',
-                    'm_accesibilidad_jefe' => '8. ¿Qué tan accesible y disponible ha sido tu Jefe Inmediato?',
-                    'm_retroalimentacion_jefe' => '9. ¿Recibes retroalimentación constructiva de tu líder?',
-                    'm_conocimiento_cultura' => '10. ¿Qué tanto conoces la misión y valores del aeropuerto?',
-                    'm_alineacion_valores' => '11. ¿Te sientes alineado(a) con la cultura institucional?',
-                    'm_organizacion_induccion' => '12. ¿Cómo calificas la organización de tu primer día?',
-                    'm_herramientas_trabajo' => '13. ¿Recibiste las herramientas necesarias (PC, Accesos)?',
-                    'm_espacio_fisico' => '14. ¿Tu espacio físico de trabajo es adecuado y funcional?',
-                    'm_atencion_rh' => '15. ¿Cómo calificas la atención de Recursos Humanos?',
-                    'm_paquete_beneficios' => '16. ¿Conoces y estás satisfecho con tu paquete de prestaciones?',
-                    'm_percepcion_imagen' => '17. ¿Qué imagen tienes del aeropuerto como empleador?'
+                // Preguntas 1-2: Claridad del Puesto
+                $bloque1 = [
+                    'm_claridad_expectativas' => '1. ¿Qué tan claro tienes actualmente lo que se espera de ti en tu puesto?',
+                    'm_seguridad_responsabilidades' => '2. ¿Qué tan seguro(a) te sientes al ejecutar tus responsabilidades diarias?'
                 ];
-                foreach ($questions as $id => $q): ?>
+                foreach ($bloque1 as $id => $q): ?>
                     <div class="metric-item">
                         <label><?php echo $q; ?></label>
                         <div class="rating-group">
@@ -98,33 +84,176 @@
             </div>
         </div>
 
-        <!-- Section 3: Feedback Cualitativo -->
+        <!-- Análisis Cualitativo: Preguntas 3-4 -->
         <div class="form-section glass-card">
-            <h3>3. Experiencia y Sugerencias</h3>
+            <h3>Análisis Cualitativo</h3>
             <div class="feedback-list">
                 <div class="input-group">
-                    <label>18. ¿Qué cuáles han sido tus mayores logros en este periodo? *</label>
-                    <textarea name="f_logros" required placeholder="Cuéntanos tus éxitos..."></textarea>
+                    <label>3. ¿Cuáles han sido tus mayores logros durante este periodo? *</label>
+                    <textarea name="f_logros" required placeholder="Texto de respuesta larga..."></textarea>
                 </div>
                 <div class="input-group">
-                    <label>19. ¿Las capacitaciones fueron útiles para tu integración? *</label>
-                    <textarea name="f_utilidad_capacitaciones" required></textarea>
+                    <label>4. ¿Hay algún aspecto en el que necesites apoyo adicional?</label>
+                    <input type="text" name="f_utilidad_capacitaciones" placeholder="Texto de respuesta corta">
                 </div>
+            </div>
+        </div>
+
+        <!-- Pregunta 5: Capacitación -->
+        <div class="form-section glass-card">
+            <div class="metrics-list">
+                <?php 
+                $bloque2 = [
+                    'm_preparacion_capacitacion' => '5. ¿En qué medida la capacitación recibida te preparó para enfrentar los retos del puesto?'
+                ];
+                foreach ($bloque2 as $id => $q): ?>
+                    <div class="metric-item">
+                        <label><?php echo $q; ?></label>
+                        <div class="rating-group">
+                            <?php for($i=1; $i<=10; $i++): ?>
+                                <label class="rating-option">
+                                    <input type="radio" name="<?php echo $id; ?>" value="<?php echo $i; ?>" required>
+                                    <span><?php echo $i; ?></span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Análisis Cualitativo: Pregunta 6 -->
+        <div class="form-section glass-card">
+            <h3>Análisis Cualitativo</h3>
+            <div class="feedback-list">
                 <div class="input-group">
-                    <label>20. ¿Qué faltó para conocer mejor tus actividades? *</label>
-                    <textarea name="f_faltantes_actividades" required></textarea>
+                    <label>6. ¿Hay algún tema o punto específico en el que necesites apoyo adicional?</label>
+                    <input type="text" name="f_faltantes_actividades" placeholder="Texto de respuesta corta">
                 </div>
+            </div>
+        </div>
+
+        <!-- Preguntas 7-12: Preparación, Equipo y Liderazgo -->
+        <div class="form-section glass-card">
+            <div class="metrics-list">
+                <?php 
+                $bloque3 = [
+                    'm_efectividad_onboarding' => '7. ¿Qué tan preparado(a) te sientes para realizar tus actividades de manera independiente?',
+                    'm_contribucion_resultados' => '8. ¿Qué tan bien comprendes cómo tu trabajo contribuye a los resultados del equipo?',
+                    'm_integracion_equipo' => '9. ¿Qué tan integrado(a) te sientes en tu equipo de trabajo?',
+                    'm_experiencia_colaboracion' => '10. ¿Qué tan positiva ha sido tu experiencia de colaboración con tu equipo de trabajo?',
+                    'm_accesibilidad_jefe' => '11. ¿Qué tan accesible y disponible ha sido tu Jefe Inmediato para orientarte cuando lo necesitas?',
+                    'm_retroalimentacion_jefe' => '12. ¿Qué tan cómodo(a) te sientes compartiendo ideas, dudas o retroalimentación dentro del equipo?'
+                ];
+                foreach ($bloque3 as $id => $q): ?>
+                    <div class="metric-item">
+                        <label><?php echo $q; ?></label>
+                        <div class="rating-group">
+                            <?php for($i=1; $i<=10; $i++): ?>
+                                <label class="rating-option">
+                                    <input type="radio" name="<?php echo $id; ?>" value="<?php echo $i; ?>" required>
+                                    <span><?php echo $i; ?></span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Preguntas 13-17: Cultura y Organización -->
+        <div class="form-section glass-card">
+            <div class="metrics-list">
+                <?php 
+                $bloque4 = [
+                    'm_conocimiento_cultura' => '13. ¿Qué tan bien comprendes la cultura, valores y forma de trabajo del Aeropuerto?',
+                    'm_alineacion_valores' => '14. ¿Qué tan clara es tu comprensión de los protocolos de seguridad y operaciones dentro del Aeropuerto?',
+                    'm_organizacion_induccion' => '15. ¿Qué tan bien te has adaptado al ritmo de trabajo y a las exigencias propias de tu área de trabajo?',
+                    'm_herramientas_trabajo' => '16. ¿Qué tan alineadas están hoy tus expectativas laborales con la realidad del Aeropuerto?',
+                    'm_espacio_fisico' => '17. ¿Qué tan identificado(a) te sientes con la organización (su misión y valores) desde tu ingreso?'
+                ];
+                foreach ($bloque4 as $id => $q): ?>
+                    <div class="metric-item">
+                        <label><?php echo $q; ?></label>
+                        <div class="rating-group">
+                            <?php for($i=1; $i<=10; $i++): ?>
+                                <label class="rating-option">
+                                    <input type="radio" name="<?php echo $id; ?>" value="<?php echo $i; ?>" required>
+                                    <span><?php echo $i; ?></span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Preguntas 18-19: Efectividad del Onboarding -->
+        <div class="form-section glass-card">
+            <div class="metrics-list">
+                <?php 
+                $bloque5 = [
+                    'm_atencion_rh' => '18. ¿Qué tan efectivo consideras que fue tu proceso de onboarding para facilitar tu adaptación?',
+                    'm_paquete_beneficios' => '19. ¿Las capacitaciones fueron útiles para tu integración al puesto y al Aeropuerto?'
+                ];
+                foreach ($bloque5 as $id => $q): ?>
+                    <div class="metric-item">
+                        <label><?php echo $q; ?></label>
+                        <div class="rating-group">
+                            <?php for($i=1; $i<=10; $i++): ?>
+                                <label class="rating-option">
+                                    <input type="radio" name="<?php echo $id; ?>" value="<?php echo $i; ?>" required>
+                                    <span><?php echo $i; ?></span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Análisis Cualitativo: Pregunta 20 -->
+        <div class="form-section glass-card">
+            <h3>Análisis Cualitativo</h3>
+            <div class="feedback-list">
                 <div class="input-group">
-                    <label>21. ¿Cómo calificas el tiempo total de onboarding? *</label>
-                    <textarea name="f_tiempo_onboarding" required></textarea>
+                    <label>20. ¿Qué consideras pudo faltar para conocer mejor tus actividades o al Aeropuerto?</label>
+                    <input type="text" name="f_tiempo_onboarding" placeholder="Texto de respuesta corta">
                 </div>
+            </div>
+        </div>
+
+        <!-- Preguntas 21-22: Satisfacción Final -->
+        <div class="form-section glass-card">
+            <div class="metrics-list">
+                <?php 
+                $bloque6 = [
+                    'm_percepcion_imagen' => '21. ¿Qué tan bien consideras fue el tiempo de onboarding para tener una adecuada integración a tu puesto de trabajo?',
+                    'm_satisfaccion_decision' => '22. Considerando estos primeros 3 meses, ¿qué tan satisfecho(a) estás con tu decisión de integrarte al Aeropuerto?'
+                ];
+                foreach ($bloque6 as $id => $q): ?>
+                    <div class="metric-item">
+                        <label><?php echo $q; ?></label>
+                        <div class="rating-group">
+                            <?php for($i=1; $i<=10; $i++): ?>
+                                <label class="rating-option">
+                                    <input type="radio" name="<?php echo $id; ?>" value="<?php echo $i; ?>" required>
+                                    <span><?php echo $i; ?></span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Análisis Cualitativo Final: Pregunta 23 -->
+        <div class="form-section glass-card">
+            <h3>Análisis Cualitativo</h3>
+            <div class="feedback-list">
                 <div class="input-group">
-                    <label>22. ¿Qué tan satisfecho estás con tu decisión de integrarte? *</label>
-                    <textarea name="f_satisfaccion_decision" required></textarea>
-                </div>
-                <div class="input-group">
-                    <label>23. ¿Qué mejorarías del proceso de Onboarding? *</label>
-                    <textarea name="f_mejoras_proceso" required></textarea>
+                    <label>23. De manera general, ¿qué integrarías en el proceso de Onboarding para tener una mejor experiencia e integración al Aeropuerto? *</label>
+                    <input type="text" name="f_mejoras_proceso" required placeholder="Texto de respuesta corta">
                 </div>
             </div>
         </div>
