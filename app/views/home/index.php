@@ -64,18 +64,28 @@
 
         <div class="filter-group">
             <label>Desde</label>
-            <input type="date" id="filter-date-start">
+            <input type="date" id="filter-date-start" autocomplete="off">
         </div>
 
         <div class="filter-group">
             <label>Hasta</label>
-            <input type="date" id="filter-date-end">
+            <input type="date" id="filter-date-end" autocomplete="off">
         </div>
 
         <div class="filter-actions">
             <button id="btn-reset-filters" class="btn-icon-only" title="Limpiar Filtros">🔄</button>
         </div>
     </div>
+
+    <script>
+    // Force clear date filters on fresh load to avoid browser auto-fill issues
+    window.addEventListener('load', () => {
+        const start = document.getElementById('filter-date-start');
+        const end = document.getElementById('filter-date-end');
+        if (start) start.value = '';
+        if (end) end.value = '';
+    });
+    </script>
 
     <style>
     .dashboard-controls {

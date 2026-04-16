@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DETAILED RESULTS MODAL
     // ============================================================
     window.showEvaluationDetails = function(item) {
-        const scores = calculateScoresJS(item);
+        const scores = window.calcScores ? window.calcScores(item) : { IGEO: 0 };
         
         document.getElementById('modalName').textContent = item.nombre || 'Colaborador';
         document.getElementById('modalSub').textContent = `${item.puesto || 'S/P'} | ${item.coordinacion || 'S/C'}`;
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         data.forEach(item => {
-            const scores = calculateScoresJS(item);
+            const scores = window.calcScores ? window.calcScores(item) : { IGEO: 0 };
             const igeo = scores.IGEO;
             const color = igeo >= 80 ? '#4CAF50' : (igeo >= 60 ? '#FFC107' : '#F44336');
             
@@ -254,53 +254,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================================
-    // CALCULATION ENGINE (17 real questions)
-    // ============================================================
-    function calculateScoresJS(source) {
-        const dimensions = {
-            'Claridad_Puesto': ['m_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_contribucion_resultados', 'm_experiencia_colaboracion'],
-            'Integracion_Equipo': ['m_integracion_equipo', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe', 'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion'],
-            'Comprension_Org': ['m_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen'],
-            'Efectividad_Onb': ['m_efectividad_onboarding', 'm_contribucion_resultados', 'm_preparacion_capacitacion']
-        };
-
-        const metricsList = [
-            'm_claridad_expectativas', 'm_seguridad_responsabilidades', 'm_preparacion_capacitacion',
-            'm_efectividad_onboarding', 'm_contribucion_resultados', 'm_integracion_equipo',
-            'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe',
-            'm_conocimiento_cultura', 'm_alineacion_valores', 'm_organizacion_induccion',
-            'm_herramientas_trabajo', 'm_espacio_fisico', 'm_atencion_rh',
-            'm_paquete_beneficios', 'm_percepcion_imagen'
-        ];
-
-        const results = {};
-        for (const [name, fields] of Object.entries(dimensions)) {
-            let sum = 0;
-            fields.forEach(f => { sum += parseInt(source[f]) || 0; });
-            results[name] = Math.round((sum / (fields.length * 10)) * 100);
-        }
-
-        let globalSum = 0;
-        metricsList.forEach(m => { globalSum += parseInt(source[m]) || 0; });
-        results['IGEO'] = Math.round((globalSum / (metricsList.length * 10)) * 100);
-
-        return results;
-    }
-
-    // ============================================================
     // KPI STATS (Top cards)
     // ============================================================
     window.updateKPIStats = function(data) {
         if (!data || data.length === 0) return;
         const validData = data.filter(item => {
-            const sc = calculateScoresJS(item);
+            const sc = window.calcScores ? window.calcScores(item) : { IGEO: 0 };
             return sc.IGEO > 0;
         });
-        if (validData.length === 0) return;
+        if (validData.length === 0) {
+            // Reset to 0 if no valid data
+            ['igeo', 'claridad', 'cultura', 'liderazgo', 'operaciones', 'satisfaccion'].forEach(key => {
+                const el = document.getElementById(`val-${key}`);
+                if (el) el.innerHTML = "0%";
+            });
+            return;
+        }
 
         const totals = { igeo: 0, claridad: 0, cultura: 0, liderazgo: 0, operaciones: 0, satisfaccion: 0 };
         validData.forEach(item => {
-            const sc = calculateScoresJS(item);
+            const sc = window.calcScores ? window.calcScores(item) : { IGEO: 0 };
             totals.igeo += sc.IGEO;
             totals.claridad += sc.Claridad_Puesto;
             totals.cultura += sc.Integracion_Equipo;

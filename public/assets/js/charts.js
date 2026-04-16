@@ -20,9 +20,11 @@ const scandiColors = {
 
 /**
  * SINGLE SOURCE OF TRUTH for score calculation.
- * Exactly 17 numeric questions from the survey form.
+ * Attached to window for search.js to consume.
  */
-function calcScores(source) {
+window.calcScores = function(source) {
+    if (!source) return { IGEO: 0, Efectividad_Onb: 0, Integracion_Equipo: 0, Claridad_Puesto: 0, Comprension_Org: 0 };
+
     const dimensions = {
         'Efectividad_Onb': ['m_preparacion_capacitacion', 'm_atencion_rh', 'm_paquete_beneficios', 'm_percepcion_imagen', 'm_satisfaccion_decision'],
         'Integracion_Equipo': ['m_contribucion_resultados', 'm_integracion_equipo', 'm_experiencia_colaboracion', 'm_accesibilidad_jefe', 'm_retroalimentacion_jefe'],
@@ -32,20 +34,31 @@ function calcScores(source) {
 
     const results = {};
     const dimValues = [];
+    
     for (const [name, fields] of Object.entries(dimensions)) {
         let sum = 0;
-        fields.forEach(f => { sum += parseInt(source[f]) || 0; });
+        let answeredFields = 0;
+        fields.forEach(f => { 
+            const val = parseInt(source[f]);
+            if (!isNaN(val)) {
+                sum += val;
+                answeredFields++;
+            }
+        });
+        
+        // Resilience: divide by actually answered fields or total fields (keep consistency with Excel)
+        // Excel assumes 1-10, so missing = 0.
         const dimAvg = (sum / (fields.length * 10)) * 100;
         results[name] = Math.round(dimAvg);
         dimValues.push(dimAvg);
     }
 
-    // IGEO in Excel is the AVERAGE of the 4 dimension scores
+    // IGEO in Excel is the average of the 4 dimension scores
     const globalAvg = dimValues.reduce((a, b) => a + b, 0) / dimValues.length;
     results['IGEO'] = Math.round(globalAvg);
 
     return results;
-}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     Chart.defaults.font.family = "'Inter', sans-serif";
