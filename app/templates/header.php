@@ -33,26 +33,16 @@
     </div>
 </header>
 
-<!-- Share Tunnel Modal -->
+<!-- Share Modal -->
 <div id="shareTunnelModal" class="spotlight-overlay" style="display:none;">
     <div class="spotlight-modal share-modal">
-        <div class="spotlight-header">
-            <span class="spotlight-icon">🌌</span>
-            <h2 style="font-size: 1.2rem; margin: 0; color: var(--color-night);">Crear Túnel Temporal</h2>
-            <span class="spotlight-esc" id="closeShareModal">ESC</span>
+        <div class="share-modal-header">
+            <h2>📋 Compartir Evaluación</h2>
+            <button class="btn-close-modal" id="closeShareModal" title="Cerrar">✕</button>
         </div>
         
         <div class="share-config-body">
-            <div class="config-group" style="padding: 1rem; background: rgba(129, 161, 193, 0.05); border-radius: 12px; border: 1px dashed var(--color-ice-blue); margin-bottom: 2rem;">
-                <label style="font-size: 0.8rem; color: var(--color-ice-blue);">PUENTE DE RED (URL PÚBLICA)</label>
-                <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                    <input type="text" id="publicBaseUrlInput" value="https://hfntm-189-141-234-219.run.pinggy-free.link" placeholder="https://tu-tunel.link" style="flex:1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.85rem;">
-                    <button id="btnSaveBaseUrl" class="neo-opt" style="padding: 0 0.8rem; font-size: 0.75rem;">Guardar</button>
-                </div>
-                <p style="font-size: 0.7rem; color: #888; margin-top: 0.5rem;">Esta URL es necesaria para que el link funcione en otros dispositivos.</p>
-            </div>
-
-            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Configura los límites para este enlace temporal.</p>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Configura los límites para el enlace de evaluación.</p>
             
             <div class="config-group">
                 <label>Límite de Respuestas</label>
@@ -85,7 +75,7 @@
             </div>
 
             <div class="share-actions" style="margin-top: 2rem; text-align: right;">
-                <button id="btnCreateTunnel" class="btn-neo btn-primary" style="padding: 0.8rem 2rem;">Generar Túnel</button>
+                <button id="btnCreateTunnel" class="btn-neo btn-primary" style="padding: 0.8rem 2rem;">Generar Enlace</button>
             </div>
         </div>
     </div>
@@ -111,6 +101,36 @@
 }
 .share-modal {
     max-width: 500px !important;
+}
+.share-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.share-modal-header h2 {
+    font-size: 1.15rem;
+    margin: 0;
+    color: var(--color-night);
+}
+.btn-close-modal {
+    background: rgba(0,0,0,0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.btn-close-modal:hover {
+    background: rgba(220, 50, 50, 0.12);
+    color: #d33;
 }
 .share-config-body {
     padding: 2rem;
@@ -196,25 +216,6 @@ document.querySelectorAll('.neo-select-grid .neo-opt').forEach(btn => {
     });
 });
 
-const btnSaveBaseUrl = document.getElementById('btnSaveBaseUrl');
-if (btnSaveBaseUrl) {
-    btnSaveBaseUrl.addEventListener('click', async () => {
-        const baseUrl = document.getElementById('publicBaseUrlInput').value;
-        const formData = new FormData();
-        formData.append('base_url', baseUrl);
-
-        btnSaveBaseUrl.innerHTML = "...";
-        try {
-            const res = await fetch(`${window.APP_URL}?url=survey/update-tunnel-base`, {
-                method: 'POST',
-                body: formData
-            });
-            const result = await res.json();
-            alert(result.message);
-        } catch (e) { alert('Error al guardar URL.'); }
-        btnSaveBaseUrl.innerHTML = "Guardar";
-    });
-}
 
 if (btnCreateTunnel) {
     btnCreateTunnel.addEventListener('click', async () => {
@@ -238,15 +239,16 @@ if (btnCreateTunnel) {
             if (result.status === 'success') {
                 document.getElementById('tunnelUrlInput').value = result.url;
                 document.getElementById('generatedLinkContainer').style.display = 'block';
-                btnCreateTunnel.innerHTML = "¡Generado!";
+                btnCreateTunnel.innerHTML = "¡Enlace generado!";
             } else {
                 alert('Error: ' + result.message);
-                btnCreateTunnel.innerHTML = "Generar Túnel";
+                btnCreateTunnel.innerHTML = "Generar Enlace";
                 btnCreateTunnel.disabled = false;
             }
         } catch (err) {
             console.error(err);
             alert('Error de conexión.');
+            btnCreateTunnel.innerHTML = "Generar Enlace";
             btnCreateTunnel.disabled = false;
         }
     });

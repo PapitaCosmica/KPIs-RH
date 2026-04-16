@@ -56,10 +56,13 @@
             </div>
         </div>
 
-        <!-- Section 2: Evaluación Cuantitativa -->
+        <!-- Instrucciones generales -->
+        <div class="form-instructions glass-card">
+            <p class="section-desc">📋 <strong>Instrucciones:</strong> Evalúa cada pregunta en una escala del 1 al 10, donde <strong>1</strong> es "Muy en desacuerdo" y <strong>10</strong> es "Totalmente de acuerdo".</p>
+        </div>
+
+        <!-- Preguntas 1-2 -->
         <div class="form-section glass-card">
-            <h3>2. Evaluación de Adaptación (Escala 1 al 10)</h3>
-            <p class="section-desc">Donde 1 es "Muy en desacuerdo" y 10 es "Totalmente de acuerdo".</p>
             
             <div class="metrics-list">
                 <?php 
@@ -84,9 +87,8 @@
             </div>
         </div>
 
-        <!-- Análisis Cualitativo: Preguntas 3-4 -->
+        <!-- Preguntas 3-4 -->
         <div class="form-section glass-card">
-            <h3>Análisis Cualitativo</h3>
             <div class="feedback-list">
                 <div class="input-group">
                     <label>3. ¿Cuáles han sido tus mayores logros durante este periodo? *</label>
@@ -122,9 +124,8 @@
             </div>
         </div>
 
-        <!-- Análisis Cualitativo: Pregunta 6 -->
+        <!-- Pregunta 6 -->
         <div class="form-section glass-card">
-            <h3>Análisis Cualitativo</h3>
             <div class="feedback-list">
                 <div class="input-group">
                     <label>6. ¿Hay algún tema o punto específico en el que necesites apoyo adicional?</label>
@@ -212,9 +213,8 @@
             </div>
         </div>
 
-        <!-- Análisis Cualitativo: Pregunta 20 -->
+        <!-- Pregunta 20 -->
         <div class="form-section glass-card">
-            <h3>Análisis Cualitativo</h3>
             <div class="feedback-list">
                 <div class="input-group">
                     <label>20. ¿Qué consideras pudo faltar para conocer mejor tus actividades o al Aeropuerto?</label>
@@ -247,9 +247,8 @@
             </div>
         </div>
 
-        <!-- Análisis Cualitativo Final: Pregunta 23 -->
+        <!-- Pregunta 23 -->
         <div class="form-section glass-card">
-            <h3>Análisis Cualitativo</h3>
             <div class="feedback-list">
                 <div class="input-group">
                     <label>23. De manera general, ¿qué integrarías en el proceso de Onboarding para tener una mejor experiencia e integración al Aeropuerto? *</label>
@@ -265,6 +264,16 @@
 </div>
 
 <style>
+/* Instructions */
+.form-instructions {
+    margin-bottom: 0.5rem;
+}
+.form-instructions .section-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+}
 /* Autocomplete */
 .autocomplete-wrapper {
     position: relative;
