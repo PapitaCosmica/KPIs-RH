@@ -16,9 +16,9 @@ $viewPath = '';
 $evaluaciones = [];
 $isIsolated = false;
 
-// --- Simple System Authentication ---
-$restricted_urls = ['home', 'resultados', 'evaluaciones', 'export/download', 'apiSearch'];
-$isRestricted = in_array($url, $restricted_urls) || empty($url) || $url === '/';
+// --- System Authentication (Whitelist approach) ---
+$public_urls = ['login', 'login/submit', 'logout', 'survey', 'survey/store', 'survey/tunnel', 'survey/thanks'];
+$isPublic = in_array($url, $public_urls);
 $adminPass = 'rh2026';
 
 if ($url === 'login/submit' && isset($_POST['password'])) {
@@ -38,7 +38,7 @@ if ($url === 'logout') {
     exit;
 }
 
-if ($isRestricted && (!isset($_COOKIE['kpi_auth']) || $_COOKIE['kpi_auth'] !== 'unlocked')) {
+if (!$isPublic && (!isset($_COOKIE['kpi_auth']) || $_COOKIE['kpi_auth'] !== 'unlocked')) {
     $url = 'login';
 }
 // ----------------------------------
