@@ -540,19 +540,24 @@ document.getElementById('fullSurveyForm').addEventListener('submit', async (e) =
         }
 
         // 3. DUAL-WRITE: Step B -> Local SQL (for Backup)
-        formData.append('is_ajax', 'true');
-        const response = await fetch('<?php echo URL_ROOT; ?>?url=survey/store', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            alert('¡Gracias! Tu evaluación ha sido enviada correctamente y sincronizada en la nube.');
-            window.location.href = '<?php echo URL_ROOT; ?>?url=survey/thanks';
-        } else {
-            alert('Error en servidor local: ' + result.message + '. Sin embargo, tus datos se guardaron en la nube.');
+        // Wrapped in try/catch because Vercel has no MySQL and PHP will fail, but we shouldn't block the user.
+        try {
+            formData.append('is_ajax', 'true');
+            const response = await fetch('<?php echo URL_ROOT; ?>?url=survey/store', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.status !== 'success') {
+                console.warn('Backup SQL failed:', result.message);
+            }
+        } catch (localErr) {
+            console.warn('Backup SQL skipped (Vercel environment)');
         }
+        
+        alert('¡Gracias! Tu evaluación ha sido enviada correctamente.');
+        window.location.href = '<?php echo URL_ROOT; ?>?url=survey/thanks';
+
     } catch (err) {
         console.error("Sync Error:", err);
         alert('Ocurrió un error. Verifica tu conexión a internet.');
